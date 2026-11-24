@@ -16,7 +16,8 @@ Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). D
 
 ## Tema & tekstur kayu
 - Warna ada di `:root` (gelap) dan `[data-theme=light]` (terang) paling atas `style.css`.
-- Tekstur: `assets/tex/wood-dark.jpg` & `wood-light.jpg` (tile 512px, ±35 KB). Ganti file untuk mengubah motif kayu.
+- Tekstur: `assets/tex/wood-dark.webp` & `wood-light.webp` (tile 1024px, ±55 KB per tema, dibuat prosedural: urat kayu, mata kayu, sambungan papan). Ganti file untuk mengubah motif.
+- Pencahayaan: `body:after` di `style.css` (cahaya hangat + vignette, satu layer statis). Atur kekuatan tekstur lewat `--veil` / `--veil2`.
 - Logo: `assets/logo-*.webp`, `favicon.png`, `apple-touch-icon.png`, `icons/`.
 
 ## Foto profil (opsional)

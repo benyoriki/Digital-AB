@@ -1,7 +1,7 @@
 /* ABY Digital — service worker (ringan): halaman utama bisa dibuka cepat & offline */
-const VER = "aby-v3";
+const VER = "aby-v4";
 const CORE = ["./", "index.html", "style.css", "script.js", "bugs.js", "manifest.webmanifest", "favicon.png", "apple-touch-icon.png",
-  "assets/logo-128.webp", "assets/logo-384.webp", "assets/tex/wood-dark.jpg", "assets/tex/wood-light.jpg", "icons/icon-192.png", "icons/icon-512.png"];
+  "assets/logo-128.webp", "assets/logo-384.webp", "assets/tex/wood-dark.webp", "assets/tex/wood-light.webp", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VER).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting()));
