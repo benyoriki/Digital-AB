@@ -27,3 +27,9 @@ Bagian Tentang memakai kartu brand. Untuk foto sendiri: taruh di `assets/profile
 
 ## Setelah publish
 `og:image` / `og:url` di `index.html` sudah mengarah ke https://benyoriki.github.io/Digital/ — ganti jika domain berubah.
+
+## Serangga di latar kayu (`bugs.js`)
+Animasi semut, kumbang, kepik, dan lalat yang lalu-lalang di atas tekstur kayu (di bawah teks & kartu). Satu canvas, tanpa gambar/library, ±10 KB.
+- Matikan: `enabled: false` di bagian `CFG` paling atas `bugs.js` (atau hapus baris `<script src="bugs.js">` di `index.html`).
+- Atur jumlah: `max` (HP) / `maxWide` (layar lebar); jeda muncul: `gap`; kabur saat disentuh: `scare`.
+- Otomatis mati bila perangkat memakai "reduce motion" atau "hemat data"; berhenti saat tab tidak aktif.

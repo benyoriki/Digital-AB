@@ -1,6 +1,6 @@
 /* ABY Digital — service worker (ringan): halaman utama bisa dibuka cepat & offline */
-const VER = "aby-v2";
-const CORE = ["./", "index.html", "style.css", "script.js", "manifest.webmanifest", "favicon.png", "apple-touch-icon.png",
+const VER = "aby-v3";
+const CORE = ["./", "index.html", "style.css", "script.js", "bugs.js", "manifest.webmanifest", "favicon.png", "apple-touch-icon.png",
   "assets/logo-128.webp", "assets/logo-384.webp", "assets/tex/wood-dark.jpg", "assets/tex/wood-light.jpg", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
