@@ -1,5 +1,5 @@
 /* ABY Digital — service worker (ringan): halaman utama bisa dibuka cepat & offline */
-const VER = "aby-v1";
+const VER = "aby-v2";
 const CORE = ["./", "index.html", "style.css", "script.js", "manifest.webmanifest", "favicon.png", "apple-touch-icon.png",
   "assets/logo-128.webp", "assets/logo-384.webp", "assets/tex/wood-dark.jpg", "assets/tex/wood-light.jpg", "icons/icon-192.png", "icons/icon-512.png"];
 
@@ -22,6 +22,10 @@ self.addEventListener("fetch", e => {
   if (req.mode === "navigate") {           // halaman: online dulu, cadangan dari cache
     e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(VER).then(c => c.put("index.html", cp)); } return r; })
       .catch(() => caches.match("index.html").then(r => r || caches.match("./"))));
+    return;
+  }
+  if (url.origin === location.origin && /\.(css|js|webmanifest)$/.test(url.pathname)) {   // kode: online dulu agar update langsung terlihat
+    e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(VER).then(c => c.put(req, cp)); } return r; }).catch(() => caches.match(req)));
     return;
   }
   if (url.origin === location.origin || /(^|\.)(fonts\.googleapis\.com|fonts\.gstatic\.com)$/.test(url.hostname)) e.respondWith(swr(req));

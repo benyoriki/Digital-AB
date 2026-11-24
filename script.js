@@ -1,25 +1,37 @@
-/* ============ LOADING SCREEN (4 detik) ============ */
+/* ============ LOADING SCREEN 2026 — progres nyata + pintu kayu terbuka ============ */
 (function () {
-  const ld = document.getElementById("ld"); if (!ld) return;
-  const DUR = 4000, t0 = performance.now();
-  const bar = document.getElementById("ldbar"), num = document.getElementById("ldn"), tx = document.getElementById("ldtx");
-  const msgs = [[0, "Menyiapkan tampilan…"], [30, "Memuat portofolio…"], [62, "Merapikan detail…"], [88, "Hampir siap…"], [100, "Selamat datang!"]];
-  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-  const st = [...document.querySelectorAll("#ldst li")], TH = [0, 30, 62, 88];
-  let last = -1;
+  const root = document.documentElement, ld = document.getElementById("ld");
+  const go = () => { root.classList.remove("ld-on"); root.classList.add("ready"); document.dispatchEvent(new Event("aby-ready")); };
+  if (!ld) { go(); return; }
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const MIN = reduce ? 500 : 2100, MAX = 4500, t0 = performance.now();
+  const ring = document.getElementById("ldring"), num = document.getElementById("ldn"), tx = document.getElementById("ldtx");
+  const msgs = [[0, "Menyiapkan tampilan…"], [34, "Memuat portofolio…"], [68, "Merapikan detail…"], [90, "Hampir siap…"], [100, "Selamat datang"]];
+  let loaded = document.readyState === "complete", fonts = !(document.fonts && document.fonts.ready), p = 0, last = -1, prev = t0, closing = false;
+  addEventListener("load", () => { loaded = true; });
+  if (!fonts) document.fonts.ready.then(() => { fonts = true; }, () => { fonts = true; });
+  const out = () => {
+    if (closing) return; closing = true; go(); ld.classList.add("out");
+    setTimeout(() => ld.remove(), reduce ? 50 : 1500);
+  };
   (function tick(now) {
-    const k = Math.min(1, (now - t0) / DUR), p = Math.round(ease(k) * 100);
-    bar.style.transform = "scaleX(" + ease(k) + ")";
-    if (p !== last) { last = p; num.textContent = p + "%"; st.forEach((li, i) => { li.classList.toggle("done", i < 3 ? p >= TH[i + 1] : p >= 100); li.classList.toggle("on", p >= TH[i] && !(i < 3 ? p >= TH[i + 1] : p >= 100)); }); for (const m of msgs) if (p >= m[0]) tx.textContent = m[1]; }
-    if (k < 1) requestAnimationFrame(tick);
-    else { ld.classList.add("out"); setTimeout(() => ld.remove(), 800); }
+    const el = now - t0, dt = Math.min(64, now - prev); prev = now;
+    const ready = (loaded && fonts && el >= MIN) || el >= MAX;
+    if (!ready) { const k = Math.min(1, el / MIN); p = Math.max(p, 92 * (1 - Math.pow(1 - k, 3))); }
+    else p = Math.min(100, p + Math.max(.05 * dt, .6));
+    const v = Math.floor(p);
+    if (v !== last) {
+      last = v; num.textContent = v; ring.style.strokeDashoffset = 100 - p; ring.style.opacity = v > 0 ? 1 : 0;
+      for (const m of msgs) if (v >= m[0]) tx.textContent = m[1];
+    }
+    if (p < 100) requestAnimationFrame(tick); else setTimeout(out, reduce ? 0 : 320);
   })(t0);
 })();
 /* ============ KONFIGURASI — EDIT DI SINI ============ */
 const CONFIG = {
   brand: "ABY Digital",
   name: "ABY Digital",
-  whatsapp: "6287874637574", // satu-satunya tempat nomor WhatsApp
+  whatsapp: "6285694993097", // satu-satunya tempat nomor WhatsApp
   defaultMsg: "Halo ABY Digital, saya tertarik dengan jasa pembuatan website/sistem. Saya ingin konsultasi mengenai kebutuhan project saya.",
   why: [
     ["bolt", "Cepat & Ringan", "Dibuat ringan agar cepat dibuka, bahkan di koneksi biasa dan perangkat lama."],
@@ -63,6 +75,7 @@ const CONFIG = {
     {"slug": "restoran", "title": "Ayam Kampung & Sambal Merintih", "filter": "Booking", "cat": "Restoran & Pesan Online", "img": "assets/projects/restoran.webp", "desc": "Rumah makan dengan QR di setiap meja: pilih menu, bayar QRIS, makanan diantar ke meja. Lengkap dasbor kasir & owner.", "feat": ["QR Meja", "Bayar QRIS", "Dasbor Kasir"], "url": "https://benyoriki.github.io/Restoran/", "accent": "#DC2626"}
   ],
   hero: ["mbe", "nabilove", "belajarbermain"], // slug project untuk visual hero
+  industries: ["Barbershop", "Bengkel Motor", "Restoran", "Gym & Fitness", "Toko Online", "Toko Bangunan", "Laundry", "Travel & Transport", "Pemancingan", "Koperasi", "Kontrakan & Kos", "Minimarket", "Booking Talent", "Buku Digital", "Game Edukasi", "SPKLU"], // baris marquee "cocok untuk"
   skills: ["HTML5", "CSS3", "JavaScript", "Responsive Web Design", "Firebase", "GitHub", "UI/UX Design", "Web Application", "Database", "API Integration"],
   points: ["Desain modern & responsive di HP maupun desktop", "Dibuat sesuai alur kerja bisnis Anda", "Konsultasi awal gratis via WhatsApp"],
   steps: [
@@ -102,6 +115,7 @@ const WA_PATH = '<path d="M17.5 14.4c-.3-.1-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 
 const ico = n => n === "whatsapp" ? S(WA_PATH, 1) : S(ICON[n]);
 const STEPI = ["chat", "pencil", "code", "checkc", "rocket", "headset"];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmtWa = n => n.replace(/^(\d{2})(\d{3})(\d{4})(\d+)$/, "+$1 $2-$3-$4");
 const waLink = m => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(m || CONFIG.defaultMsg)}`;
 const P = CONFIG.projects;
 const hostOf = u => { try { const x = new URL(u); return x.host + x.pathname.replace(/\/$/, ""); } catch (e) { return u; } };
@@ -118,10 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const hs = CONFIG.hero.map(k => P.find(p => p.slug === k)).filter(Boolean);
   $("#vis").innerHTML = hs.map((p, i) => `<div class="win w${i + 1}"><div class="bar"><s></s><s></s><s></s></div><img src="${esc(p.img)}" alt="" width="800" height="500" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>`).join("") +
     `<span class="fl f1"><i class="dot"></i>${P.length}+ Website Live</span><span class="fl f2">&lt;/&gt; Custom Code</span><span class="fl f3">✓ 100% Responsive</span>`;
-
-  /* Marquee */
-  const items = [...CONFIG.skills, ...cats];
-  $("#track").innerHTML = [0, 1].map(() => `<span>${items.map(esc).join("</span><span>")}</span>`).join("");
 
   /* Keunggulan */
   $("#why").innerHTML = CONFIG.why.map((w, i) => `<li class="spot rv" style="--d:${i * .06}s"><span class="ic">${ico(w[0])}</span><h3>${esc(w[1])}</h3><p>${esc(w[2])}</p></li>`).join("");
@@ -189,12 +199,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const c = CONFIG.contacts;
   const hrefs = { email: v => "mailto:" + v, instagram: v => "https://instagram.com/" + v.replace("@", ""), facebook: v => v, github: v => "https://github.com/" + v, website: v => v };
   const cIcon = { WhatsApp: "whatsapp", Email: "mail", Instagram: "instagram", Facebook: "facebook", Github: "github", Website: "globe" };
-  const all = [["WhatsApp", "+" + CONFIG.whatsapp, waLink()], ...["email", "instagram", "facebook", "github", "website"].map(k => [k[0].toUpperCase() + k.slice(1), c[k], c[k] && hrefs[k](c[k])])];
+  const all = [["WhatsApp", fmtWa(CONFIG.whatsapp), waLink()], ...["email", "instagram", "facebook", "github", "website"].map(k => [k[0].toUpperCase() + k.slice(1), c[k], c[k] && hrefs[k](c[k])])];
   const items2 = all.filter(i => i[2]);
   $("#contacts").innerHTML = items2.map(([n, v, h], i) => `<a class="ct spot rv" style="--d:${i * .06}s" href="${esc(h)}" target="_blank" rel="noopener"><span class="ic">${ico(cIcon[n])}</span><span><small>${n}</small><b>${esc(v)}</b></span>${n === "WhatsApp" ? `<span class="btn sm wa go">Chat Sekarang ${ico("arrow")}</span>` : ""}</a>`).join("");
   $("#fnav").innerHTML = $$("#menu a:not(.menu-cta)").map(a => `<a href="${a.getAttribute("href")}">${a.textContent}</a>`).join("");
   $("#fsoc").innerHTML = items2.map(i => `<a href="${esc(i[2])}" target="_blank" rel="noopener">${i[0]}</a>`).join("");
   $("#yr").textContent = new Date().getFullYear();
+
+  /* Form kebutuhan -> pesan WhatsApp terisi otomatis */
+  const lead = $("#lead");
+  if (lead) {
+    lead.elements.jenis.innerHTML = `<option value="">Pilih jenis project…</option>` + CONFIG.services.map(x => `<option>${esc(x.title)}</option>`).join("") + `<option>Belum tahu, ingin konsultasi dulu</option>`;
+    lead.addEventListener("submit", e => { e.preventDefault(); const f = lead.elements, nama = f.nama.value.trim(), jenis = f.jenis.value, pesan = f.pesan.value.trim();
+      const m = "Halo ABY Digital" + (nama ? `, saya ${nama}` : "") + ". " + (jenis ? `Saya ingin konsultasi tentang ${jenis}.` : "Saya ingin konsultasi mengenai kebutuhan project saya.") + (pesan ? `\n\nGambaran kebutuhan: ${pesan}` : "");
+      window.open(waLink(m), "_blank", "noopener"); });
+  }
 
   fillIcons(document);
 
@@ -218,9 +237,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const rot = $$("#rot span"); let ri = 0;
   if (rot.length > 1 && !reduce) setInterval(() => { rot[ri].classList.remove("on"); ri = (ri + 1) % rot.length; rot[ri].classList.add("on"); }, 2600);
 
-  /* Hitung naik pada statistik */
-  setTimeout(() => $$("#stats b").forEach(b => { const m = b.textContent.match(/^(\d+)(.*)$/); if (!m || reduce) return; const n = +m[1], t0 = performance.now();
-    (function f(t) { const k = Math.min(1, (t - t0) / 1200); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))) + m[2]; if (k < 1) requestAnimationFrame(f); })(t0); }), 3700);
+  /* Hitung naik pada statistik (setelah loading selesai) */
+  let counted = false;
+  const runCount = () => { if (counted) return; counted = true; $$("#stats b").forEach(b => { const m = b.textContent.match(/^(\d+)(.*)$/); if (!m || reduce) return; const n = +m[1], t0 = performance.now();
+    (function f(t) { const k = Math.min(1, (t - t0) / 1200); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))) + m[2]; if (k < 1) requestAnimationFrame(f); })(t0); }); };
+  if (root.classList.contains("ready")) setTimeout(runCount, 500); else { document.addEventListener("aby-ready", () => setTimeout(runCount, 500), { once: true }); setTimeout(runCount, 6500); }
 
   /* Cahaya mengikuti kursor (hanya mouse) */
   if (matchMedia("(hover:hover) and (pointer:fine)").matches && !reduce) { const cur = $("#cur"); let cx = 0, cy = 0, tk2 = false;
@@ -238,18 +259,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   instBtns.concat([$("#ibgo")]).forEach(b => b.addEventListener("click", doInstall));
   let seen = 0; try { seen = +localStorage.getItem("ibx") || 0; } catch (e) {}
-  const maybeBanner = () => { if (!canInstall() || Date.now() - seen < 7 * 864e5) return; ib.hidden = false; };
+  let armed = false, shown = false;
+  const maybeBanner = () => { if (shown || !armed || !canInstall() || Date.now() - seen < 7 * 864e5 || scrollY < innerHeight * 1.2) return; shown = true; ib.hidden = false; };
+  const arm = ms => setTimeout(() => { armed = true; maybeBanner(); }, ms);
   $("#ibx").onclick = () => { ib.hidden = true; try { localStorage.setItem("ibx", Date.now()); } catch (e) {} };
   $("#iosx").onclick = () => ios.close(); ios.addEventListener("click", e => { if (e.target === ios) ios.close(); });
   if (isIOS) $("#ibgo").textContent = "Cara Install";
-  document.addEventListener("pwa-ready", () => { syncInstall(); setTimeout(maybeBanner, 6000); });
+  document.addEventListener("pwa-ready", () => { syncInstall(); arm(6000); });
   addEventListener("appinstalled", () => { deferredInstall = null; syncInstall(); ib.hidden = true; });
-  syncInstall(); if (isIOS) setTimeout(maybeBanner, 9000); else if (deferredInstall) setTimeout(maybeBanner, 6000);
+  syncInstall(); if (isIOS) arm(9000); else if (deferredInstall) arm(6000);
 
   /* Scroll: tombol atas */
   const top = $("#top"); top.onclick = () => scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
   const prog = $("#prog"); let tk = false;
-  addEventListener("scroll", () => { if (tk) return; tk = true; requestAnimationFrame(() => { tk = false; top.classList.toggle("show", scrollY > 700);
+  addEventListener("scroll", () => { if (tk) return; tk = true; requestAnimationFrame(() => { tk = false; top.classList.toggle("show", scrollY > 700); maybeBanner();
     const h = document.documentElement.scrollHeight - innerHeight; prog.style.transform = `scaleX(${h > 0 ? Math.min(1, scrollY / h) : 0})`; }); }, { passive: true });
 
   /* Reveal + nav aktif */

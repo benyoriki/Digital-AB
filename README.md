@@ -7,7 +7,7 @@ Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). D
 3. Settings → Pages → Deploy from branch → `main` / root.
 
 ## Edit data (semua di bagian `CONFIG` paling atas `script.js`)
-- `whatsapp` : nomor WhatsApp (satu-satunya tempat).
+- `whatsapp` : nomor WhatsApp, format tanpa tanda + (saat ini 6285694993097). Satu-satunya tempat; JSON-LD di index.html juga memuat nomor ini.
 - `experience` : isi kalimat pengalaman Anda. Kosong = baris disembunyikan.
 - `contacts` : isi email / instagram / facebook / github / website. Yang kosong otomatis TIDAK ditampilkan.
 - `projects` : 19 project nyata dari benyoriki.com. Tambah project = salin 1 blok, taruh screenshot 800x500 (.webp) di `assets/projects/<slug>.webp`.
