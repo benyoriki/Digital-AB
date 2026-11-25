@@ -16,7 +16,7 @@ Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). D
 
 ## Tema & tekstur kayu
 - Warna ada di `:root` (gelap) dan `[data-theme=light]` (terang) paling atas `style.css`.
-- Tekstur: `assets/tex/wood-dark.webp` & `wood-light.webp` (tile 1024px, ±55 KB per tema, dibuat prosedural: urat kayu, mata kayu, sambungan papan). Ganti file untuk mengubah motif.
+- Tekstur: `assets/tex/wood-dark.webp` & `wood-light.webp` (tile 1536×1024, ±115 KB per tema, prosedural via `wood-generator.py`) + `grain.png` (1 KB, bintik halus untuk kartu).
 - Pencahayaan: `body:after` di `style.css` (cahaya hangat + vignette, satu layer statis). Atur kekuatan tekstur lewat `--veil` / `--veil2`.
 - Logo: `assets/logo-*.webp`, `favicon.png`, `apple-touch-icon.png`, `icons/`.
 
@@ -34,3 +34,7 @@ Animasi semut, kumbang, kepik, dan lalat yang lalu-lalang di atas tekstur kayu (
 - Matikan: `enabled: false` di bagian `CFG` paling atas `bugs.js` (atau hapus baris `<script src="bugs.js">` di `index.html`).
 - Atur jumlah: `max` (HP) / `maxWide` (layar lebar); jeda muncul: `gap`; kabur saat disentuh: `scare`.
 - Otomatis mati bila perangkat memakai "reduce motion" atau "hemat data"; berhenti saat tab tidak aktif.
+
+## v6 — material nyata
+- Kartu diberi kilau tepi atas, tepi bawah gelap, dan bayangan berlapis; judul h1/h2 timbul; kaca pada mockup; banner install kini solid.
+- Kayu: cincin tahun tak beraturan, pori, relief dari kiri-atas, celah & sambungan papan, 8 papan lebar berbeda.

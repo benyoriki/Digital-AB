@@ -25,12 +25,12 @@
   --hl:rgba(255,255,255,.7);--shadow:rgba(90,55,20,.22);--seam:rgba(120,80,35,.35);
   --wood:url(assets/tex/wood-light.webp);
   --glass:rgba(251,244,231,.95);--sh:0 22px 50px rgba(90,55,20,.2);
-  --alt:rgba(130,85,35,.12);--ld-bg:#f3e8d3;--ld-tx:#2a1b0d;--ld-mut:#6a553e;--ld-line:rgba(110,72,32,.2)
+  --alt:rgba(140,96,48,.11);--ld-bg:#f3e8d3;--ld-tx:#2a1b0d;--ld-mut:#6a553e;--ld-line:rgba(110,72,32,.2)
 }
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth;scroll-padding-top:92px;overflow-x:clip;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 body{font:16px/1.65 var(--font);color:var(--tx);overflow-x:clip;-webkit-font-smoothing:antialiased;
-  background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,640px;transition:background-color .3s,color .3s}
+  background-color:var(--bg);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,960px;transition:background-color .3s,color .3s}
 img{display:block;max-width:100%;height:auto}svg{display:block;flex:none;width:1.15em;height:1.15em}a{color:inherit;text-decoration:none}ul,ol{list-style:none;padding:0}button{font:inherit;color:inherit}
 a,button,summary{touch-action:manipulation}
 [hidden]{display:none!important}
@@ -43,12 +43,12 @@ em{font-style:normal;background:var(--grad-t);-webkit-background-clip:text;backg
 h1,h2{font-family:var(--serif)}
 
 /* ===== permukaan kayu (dipakai berulang) ===== */
-.wd{background-color:var(--panel);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,640px}
+.wd{background-color:var(--panel);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,960px}
 
 /* NAV — papan kayu melayang */
 .nav{position:fixed;top:max(10px,env(safe-area-inset-top));left:0;right:0;z-index:50;padding-inline:var(--gx);pointer-events:none}
 .nav-in{pointer-events:auto;max-width:1200px;margin-inline:auto;display:flex;align-items:center;gap:10px;height:var(--nav);padding:0 10px 0 12px;border-radius:99px;
-  background-color:var(--glass);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,640px;
+  background-color:var(--glass);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,960px;
   border:1px solid var(--card-b);box-shadow:0 12px 34px var(--shadow),inset 0 1px 0 var(--hl),inset 0 -2px 0 var(--seam)}
 .logo{display:flex;align-items:center;gap:11px;font-weight:800;margin-right:auto;min-width:0}
 .logo img{flex:none;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
@@ -62,7 +62,7 @@ h1,h2{font-family:var(--serif)}
 .burger[aria-expanded=true] i:nth-child(1){transform:translateY(7px) rotate(45deg)}.burger[aria-expanded=true] i:nth-child(2){opacity:0}.burger[aria-expanded=true] i:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .nav .nav-cta{display:none}
 #menu{display:none;position:absolute;pointer-events:auto;top:calc(var(--nav) + 10px);left:0;right:0;max-height:calc(100dvh - 110px);overflow:auto;flex-direction:column;gap:2px;padding:10px;
-  background-color:var(--panel);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,640px;border:1px solid var(--card-b);border-radius:var(--r);box-shadow:0 30px 80px var(--shadow);animation:drop .22s ease}
+  background-color:var(--panel);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,960px;border:1px solid var(--card-b);border-radius:var(--r);box-shadow:0 30px 80px var(--shadow);animation:drop .22s ease}
 @keyframes drop{from{opacity:0;transform:translateY(-8px) scale(.98)}}
 #menu.open{display:flex}
 #menu a{padding:14px 16px;border-radius:var(--r2);font-weight:600;font-size:16.5px;min-height:50px;display:flex;align-items:center}
@@ -84,7 +84,7 @@ html.menu-open .nav:before{content:"";position:fixed;inset:0;z-index:-1;pointer-
 
 /* HERO */
 .hero{position:relative;overflow:hidden;padding:calc(var(--nav) + 64px) 0 56px;isolation:isolate;border-bottom:1px solid var(--card-b);
-  background:linear-gradient(180deg,var(--veil2),var(--veil) 96%),var(--wood);background-size:auto,640px}
+  background:linear-gradient(180deg,var(--veil2),var(--veil) 96%),var(--wood);background-size:auto,960px}
 .aurora{position:absolute;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
 .aurora i{position:absolute;border-radius:50%}
 .aurora i:nth-child(1){width:760px;height:760px;background:radial-gradient(circle,rgba(242,150,60,.55),transparent 68%);top:-320px;left:-280px;opacity:.55}
@@ -95,7 +95,7 @@ html.menu-open .nav:before{content:"";position:fixed;inset:0;z-index:-1;pointer-
 .grid-bg{position:absolute;inset:0;z-index:-1;opacity:.7;background:repeating-radial-gradient(circle at 78% 44%,transparent 0 30px,var(--card-b) 30px 31px);-webkit-mask-image:radial-gradient(ellipse 55% 60% at 78% 44%,#000,transparent 75%);mask-image:radial-gradient(ellipse 55% 60% at 78% 44%,#000,transparent 75%)}
 /* pencahayaan ruangan: cahaya hangat dari atas + vignette tepi (1 layer statis, tanpa repaint saat scroll) */
 body:after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;
-  background:radial-gradient(90% 55% at 50% -8%,rgba(255,196,120,.16),transparent 70%),radial-gradient(120% 90% at 50% 45%,transparent 52%,rgba(0,0,0,.42) 100%)}
+  background:radial-gradient(90% 55% at 50% -8%,rgba(255,196,120,.16),transparent 70%),radial-gradient(120% 90% at 50% 45%,transparent 52%,rgba(0,0,0,.45) 100%)}
 [data-theme=light] body:after{background:radial-gradient(90% 55% at 30% -6%,rgba(255,248,226,.5),transparent 70%),radial-gradient(120% 90% at 50% 45%,transparent 58%,rgba(96,58,22,.22) 100%)}
 .bugs{position:fixed;left:0;top:0;z-index:-1;pointer-events:none}
 .hero-in{display:grid;gap:48px;align-items:center}
@@ -213,7 +213,7 @@ h3{letter-spacing:-.01em}
 .skills{display:flex;flex-wrap:wrap;gap:9px}.skills li{padding:8px 16px;border-radius:99px;background:var(--card);border:1px solid var(--card-b);font-size:14px;font-weight:600;transition:.2s}.skills li:hover{border-color:var(--acc);transform:translateY(-2px)}
 /* kartu brand: papan walnut + logo */
 .bcard{position:relative;isolation:isolate;aspect-ratio:1;border-radius:32px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:26px 20px;color:#f8efe0;border:3px solid var(--card-b);
-  background:linear-gradient(160deg,rgba(24,16,10,.55),rgba(24,16,10,.8)),url(assets/tex/wood-dark.webp);background-size:auto,640px}
+  background:linear-gradient(160deg,rgba(24,16,10,.55),rgba(24,16,10,.8)),url(assets/tex/wood-dark.webp);background-size:auto,960px}
 .bcard:before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-radial-gradient(circle at 50% 38%,transparent 0 26px,rgba(242,176,80,.13) 26px 27px);-webkit-mask-image:radial-gradient(circle at 50% 38%,#000,transparent 72%);mask-image:radial-gradient(circle at 50% 38%,#000,transparent 72%)}
 .bglow{position:absolute;z-index:-1;width:80%;aspect-ratio:1;left:10%;top:2%;border-radius:50%;background:radial-gradient(circle,rgba(242,160,60,.45),transparent 68%);filter:blur(10px)}
 .photo .bcard img{width:46%;aspect-ratio:auto;border:0;border-radius:0;object-fit:contain;filter:drop-shadow(0 12px 22px rgba(0,0,0,.5));animation:ldfloat 4s ease-in-out infinite}
@@ -249,7 +249,7 @@ h3{letter-spacing:-.01em}
 /* CTA — papan walnut tebal */
 .cta-sec{padding-block:calc(var(--sy)/2)}
 .cta{position:relative;overflow:hidden;isolation:isolate;text-align:center;padding:clamp(38px,8vw,84px) clamp(22px,5vw,60px);border-radius:32px;border:1px solid rgba(244,196,120,.3);color:#f8efe0;box-shadow:0 30px 70px -24px var(--shadow),inset 0 1px 0 rgba(255,226,170,.18);
-  background:radial-gradient(60% 80% at 50% 0,rgba(242,150,60,.4),transparent 70%),linear-gradient(180deg,rgba(24,16,10,.4),rgba(24,16,10,.72)),url(assets/tex/wood-dark.webp);background-size:auto,auto,640px}
+  background:radial-gradient(60% 80% at 50% 0,rgba(242,150,60,.4),transparent 70%),linear-gradient(180deg,rgba(24,16,10,.4),rgba(24,16,10,.72)),url(assets/tex/wood-dark.webp);background-size:auto,auto,960px}
 .cta .aurora i{opacity:.35}.cta .aurora i:nth-child(1){left:-160px;top:-260px;width:520px;height:520px}.cta .aurora i:nth-child(2){right:-140px;bottom:-280px;top:auto;width:500px;height:500px}
 .cta:before{content:"";position:absolute;inset:0;z-index:-1;background:repeating-radial-gradient(circle at 50% 120%,transparent 0 34px,rgba(244,196,120,.12) 34px 35px);-webkit-mask-image:radial-gradient(circle at 50% 110%,#000,transparent 70%);mask-image:radial-gradient(circle at 50% 110%,#000,transparent 70%)}
 .cta h2{max-width:20ch;margin-inline:auto}.cta p{max-width:58ch;margin:18px auto 30px;opacity:.9;font-size:clamp(1rem,3.6vw,1.12rem)}
@@ -265,7 +265,7 @@ h3{letter-spacing:-.01em}
 
 /* FOOTER — walnut gelap di kedua tema */
 footer{border-top:1px solid rgba(244,196,120,.25);padding:48px 0 calc(100px + env(safe-area-inset-bottom));color:#f8efe0;
-  background:linear-gradient(180deg,rgba(18,12,7,.72),rgba(18,12,7,.9)),url(assets/tex/wood-dark.webp);background-size:auto,640px}
+  background:linear-gradient(180deg,rgba(18,12,7,.72),rgba(18,12,7,.9)),url(assets/tex/wood-dark.webp);background-size:auto,960px}
 .foot{display:grid;grid-template-columns:1fr 1fr;gap:30px 24px}.foot .fb{grid-column:1/-1}
 .foot p{color:#c6b49b;margin-top:6px;font-size:15px}.foot strong{font-family:var(--serif);font-size:1.3rem;letter-spacing:-.01em}
 .fbrand{display:flex;align-items:center;gap:12px}.fbrand img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
@@ -288,7 +288,7 @@ footer .btn.ghost{background:rgba(255,226,170,.08);border-color:rgba(244,196,120
 .cur.on{opacity:1}@media(hover:none){.cur{display:none}}
 
 /* MODAL */
-dialog{border:0;padding:0;margin:auto;width:min(980px,100% - 24px);max-height:92dvh;overflow:auto;border-radius:28px;background-color:var(--bg2);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,640px;color:var(--tx);border:1px solid var(--card-b);box-shadow:0 40px 100px rgba(0,0,0,.6);overscroll-behavior:contain}
+dialog{border:0;padding:0;margin:auto;width:min(980px,100% - 24px);max-height:92dvh;overflow:auto;border-radius:28px;background-color:var(--bg2);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,960px;color:var(--tx);border:1px solid var(--card-b);box-shadow:0 40px 100px rgba(0,0,0,.6);overscroll-behavior:contain}
 dialog[open]{animation:dlg .3s cubic-bezier(.2,.8,.2,1)}@keyframes dlg{from{opacity:0;transform:translateY(24px) scale(.97)}}
 dialog::backdrop{background:rgba(12,8,4,.82)}
 .x{position:sticky;top:12px;float:right;margin:12px 12px -56px 0;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid var(--card-b);background:var(--glass);cursor:pointer;display:grid;place-items:center;font-size:18px}
@@ -333,7 +333,7 @@ html.ld-on{overflow:hidden}
 .ld.out{pointer-events:none}
 html:not(.js) .ld{display:none}
 .js .ld{animation:ldfail .1s 7s forwards}@keyframes ldfail{to{opacity:0;visibility:hidden}}
-.ld-door{position:absolute;top:0;bottom:0;width:50.5%;background-color:var(--ld-bg);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,640px;transition:transform .9s cubic-bezier(.76,0,.2,1) .28s;will-change:transform}
+.ld-door{position:absolute;top:0;bottom:0;width:50.5%;background-color:var(--ld-bg);background-image:linear-gradient(var(--veil),var(--veil)),var(--wood);background-size:auto,960px;transition:transform .9s cubic-bezier(.76,0,.2,1) .28s;will-change:transform}
 .ld-door.l{left:0;box-shadow:1px 0 0 rgba(242,176,80,.4),14px 0 44px rgba(0,0,0,.28)}
 .ld-door.r{right:0;box-shadow:-1px 0 0 rgba(242,176,80,.4),-14px 0 44px rgba(0,0,0,.28)}
 .ld.out .ld-door.l{transform:translateX(-103%)}.ld.out .ld-door.r{transform:translateX(103%)}
@@ -484,3 +484,22 @@ html:not(.js) .ld{display:none}
   .bento{gap:12px}.bento article{padding:20px}.bento article .ic{width:46px;height:46px;margin-bottom:14px}
   .bento ul{display:none}.bento p{margin:6px 0 14px;font-size:15px}
 }
+
+/* ===== v6: material nyata ===== */
+/* kartu = papan tebal: kilau tepi atas, tepi bawah gelap, bayangan berlapis (kontak + ambient) */
+.card,.bento article,.steps li,.ct,.whygrid li,.faq details,.stats,.faqcta{
+  background-image:linear-gradient(165deg,rgba(255,224,170,.09),rgba(255,224,170,0) 44%),url(assets/tex/grain.png);background-size:auto,44px;
+  border-color:rgba(244,196,120,.2) rgba(244,196,120,.1) rgba(0,0,0,.4) rgba(244,196,120,.1);
+  box-shadow:inset 0 1px 0 rgba(255,228,176,.18),inset 0 -1px 0 rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.55),0 12px 22px -10px rgba(0,0,0,.65),0 32px 56px -28px rgba(0,0,0,.6)}
+[data-theme=light] .card,[data-theme=light] .bento article,[data-theme=light] .steps li,[data-theme=light] .ct,[data-theme=light] .whygrid li,[data-theme=light] .faq details,[data-theme=light] .stats,[data-theme=light] .faqcta{
+  background-image:linear-gradient(165deg,rgba(255,255,255,.75),rgba(255,255,255,0) 46%),url(assets/tex/grain.png);background-size:auto,44px;
+  border-color:rgba(255,255,255,.95) rgba(130,88,44,.1) rgba(130,88,44,.24) rgba(130,88,44,.1);
+  box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(130,88,44,.14),0 1px 2px rgba(92,58,22,.28),0 12px 22px -10px rgba(92,58,22,.4),0 32px 56px -30px rgba(92,58,22,.4)}
+.faq details[open]{box-shadow:inset 3px 0 0 var(--acc),inset 0 1px 0 rgba(255,228,176,.18),0 14px 36px -20px var(--shadow)}
+/* judul seperti dicetak timbul */
+h1,h2{filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+[data-theme=light] h1,[data-theme=light] h2{filter:drop-shadow(0 1px 0 rgba(255,255,255,.75))}
+/* kaca layar pada mockup */
+.win:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.2),rgba(255,255,255,0) 38%,rgba(255,255,255,0) 70%,rgba(255,255,255,.07))}
+/* banner install: solid, tidak tembus */
+.ib{background-color:var(--bg2);background-image:linear-gradient(var(--veil2),var(--veil2)),var(--wood);background-size:auto,960px;box-shadow:0 22px 50px var(--shadow),inset 0 1px 0 var(--hl)}
