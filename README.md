@@ -1,40 +1,22 @@
-# ADS (Abi Digital Solutions)
-Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). Desain 2026 bertema KAYU: mode terang (oak) & gelap (walnut) otomatis, tekstur papan kayu, bento layanan, portfolio dengan screenshot nyata + preview langsung.
+# ADS (Abi Digital Solutions) — v12 "Tukang Digital"
+Website HTML + CSS + JavaScript murni (tanpa build, tanpa library). Konsep: walnut hangat + kuningan + motif penggaris, dengan mode gelap & terang otomatis.
 
-## Cara pakai
-1. Buka `index.html` langsung di browser.
-2. Upload SEMUA isi folder ini ke root repository GitHub (timpa file lama, termasuk folder `assets/`).
-3. Settings → Pages → Deploy from branch → `main` / root.
+## Pasang
+Upload SEMUA isi folder ini ke root repository GitHub (timpa file lama, termasuk `assets/`), lalu pastikan `bugs.js` ikut terupload. Setelah publish, buka sekali lalu muat ulang (service worker sudah naik ke `ads-v12`).
 
-## Edit data (semua di bagian `CONFIG` paling atas `script.js`)
-- `whatsapp` : nomor WhatsApp, format tanpa tanda + (saat ini 6285694993097). Satu-satunya tempat; JSON-LD di index.html juga memuat nomor ini.
-- `experience` : isi kalimat pengalaman Anda. Kosong = baris disembunyikan.
-- `contacts` : isi email / instagram / facebook / github / website. Yang kosong otomatis TIDAK ditampilkan.
-- `projects` : 19 project nyata dari benyoriki.com. Tambah project = salin 1 blok, taruh screenshot 800x500 (.webp) di `assets/projects/<slug>.webp`.
-- `hero` : 3 slug project yang tampil di visual hero.
-- `services`, `skills`, `points`, `steps`.
+## Yang berubah di v12
+- Tanpa layar loading (sebelumnya menahan halaman min. 2,1 detik), tanpa cahaya kursor, tanpa blur/backdrop-filter. v16: serangga = capung & lebah saja lewat `bugs.js` (satu canvas, ±6 serangga, berhenti saat tab tersembunyi / reduce-motion).
+- Foto kayu hanya di hero, CTA, footer; sisanya warna solid, jadi teks lebih terbaca.
+- Font: Bricolage Grotesque (judul) + Plus Jakarta Sans (isi).
+- Hero: laptop + HP + layar belakang dari screenshot proyek asli, statistik berbentuk penggaris.
+- Layanan jadi daftar baris; proses kerja bernomor; FAQ bergaris; portfolio 2 kolom di HP (halaman HP ±32% lebih pendek).
+- Tampil baik di HP (360–430px), tablet, mode "situs desktop" di HP (±980px), dan PC.
 
-## Tema & tekstur kayu
-- Warna ada di `:root` (gelap) dan `[data-theme=light]` (terang) paling atas `style.css`.
-- Tekstur: `assets/tex/wood-dark.webp` & `wood-light.webp` (tile 1536×1024, ±115 KB per tema, prosedural via `wood-generator.py`) + `grain.png` (1 KB, bintik halus untuk kartu).
-- Pencahayaan: `body:after` di `style.css` (cahaya hangat + vignette, satu layer statis). Atur kekuatan tekstur lewat `--veil` / `--veil2`.
-- Logo: `assets/logo-wide.webp` (logo kayu & emas, transparan), `assets/logo-*.webp`, `favicon.png`, `apple-touch-icon.png`, `icons/`.
+## Edit konten (bagian `CONFIG` di `script.js`)
+`whatsapp`, `experience`, `contacts`, `projects`, `hero` (3 slug: laptop, HP, layar belakang), `services`, `skills`, `points`, `steps`. Tambah project: salin satu blok + screenshot 800x500 `.webp` di `assets/projects/`.
 
-## Foto profil (opsional)
-Bagian Tentang memakai kartu brand. Untuk foto sendiri: taruh di `assets/profile.jpg` lalu isi `photo: "assets/profile.jpg"` di CONFIG.
+## Warna & tema
+Token ada di `:root` (gelap) dan `[data-theme=light]` paling atas `style.css`. Kekuatan tekstur hero: `--wood-o`.
 
-## PWA (bisa di-install)
-`manifest.webmanifest`, `sw.js`, folder `icons/`. Setelah publish di HTTPS (GitHub Pages), tombol Install muncul di HP/PC. iPhone: Bagikan → Tambah ke Layar Utama. Jika file diubah, naikkan `VER` di `sw.js` (mis. ads-v1) agar cache diperbarui.
-
-## Setelah publish
-`og:image` / `og:url` di `index.html` sudah mengarah ke https://benyoriki.github.io/Digital/ — ganti jika domain berubah.
-
-## Serangga di latar kayu (`bugs.js`)
-Animasi semut, kumbang, kepik, dan lalat yang lalu-lalang di atas tekstur kayu (di bawah teks & kartu). Satu canvas, tanpa gambar/library, ±10 KB.
-- Matikan: `enabled: false` di bagian `CFG` paling atas `bugs.js` (atau hapus baris `<script src="bugs.js">` di `index.html`).
-- Atur jumlah: `max` (HP) / `maxWide` (layar lebar); jeda muncul: `gap`; kabur saat disentuh: `scare`.
-- Otomatis mati bila perangkat memakai "reduce motion" atau "hemat data"; berhenti saat tab tidak aktif.
-
-## v6 — material nyata
-- Kartu diberi kilau tepi atas, tepi bawah gelap, dan bayangan berlapis; judul h1/h2 timbul; kaca pada mockup; banner install kini solid.
-- Kayu: cincin tahun tak beraturan, pori, relief dari kiri-atas, celah & sambungan papan, 8 papan lebar berbeda.
+## PWA
+`manifest.webmanifest`, `sw.js`, `icons/`. Jika file diubah, naikkan `VER` di `sw.js`.

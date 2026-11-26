@@ -1,267 +1,260 @@
-/* ADS (Abi Digital Solutions) — serangga lalu-lalang di latar kayu.
-   Satu <canvas>, tanpa library/gambar. Berhenti otomatis saat tab tersembunyi / tidak ada serangga.
-   Nonaktif otomatis: "reduce motion" & "hemat data". Matikan manual: CFG.enabled = false. */
+/* ADS — serangga canvas v4 (ringan, tanpa library, satu canvas).
+   - Capung: meluncur cepat lalu melayang, hinggap di tombol/judul. Lebah: berdengung & melayang.
+   Berhenti saat tab tersembunyi / reduce-motion / hemat data. */
 (() => {
   "use strict";
-  const CFG = {
-    enabled: true,
-    max: 4,            // maksimal serangga bersamaan di HP
-    maxWide: 6,        // maksimal di layar lebar
-    first: 1600,       // jeda (ms) setelah loading selesai sebelum serangga pertama
-    gap: [3.5, 9],     // jeda antar kemunculan (detik)
-    scare: true        // kabur saat disentuh / didekati kursor
-  };
-  if (!CFG.enabled) return;
-  const doc = document, root = doc.documentElement;
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const nav = navigator;
-  if ((nav.connection || {}).saveData) return;
-  const lowEnd = (nav.deviceMemory && nav.deviceMemory <= 2) || (nav.hardwareConcurrency && nav.hardwareConcurrency <= 2);
+  const mq = matchMedia("(prefers-reduced-motion: reduce)");
+  const conn = navigator.connection || {};
+  if (mq.matches || conn.saveData || (navigator.deviceMemory && navigator.deviceMemory < 1)) return;
 
-  const TAU = Math.PI * 2, rnd = (a, b) => a + Math.random() * (b - a), r2 = a => rnd(a[0], a[1]);
+  const TAU = Math.PI * 2;
+  const R = (a, b) => a + Math.random() * (b - a);
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
-  const angd = (a, b) => { let d = a - b; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; return d; };
+  const angDiff = (a, b) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
 
-  /* ---------- jenis & parameter ---------- */
-  // L: panjang (px) · v: kecepatan (px/dtk) · go/stop: durasi jalan/diam (dtk) · A: ayunan langkah · lw: tebal kaki
-  const K = {
-    ant:    { w: 50, nom: 18, L: [15, 20], v: [34, 58], go: [1.6, 5], stop: [.3, 1.1], A: .07, lw: .02, wob: .45, sway: .06,
-              hip: [[.06, .04], [-.01, .045], [-.08, .04]], ft: [[.2, .2], [0, .26], [-.2, .24]] },
-    beetle: { w: 20, nom: 26, L: [22, 28], v: [20, 32], go: [2, 5], stop: [.5, 1.6], A: .08, lw: .035, wob: .3, sway: .03,
-              hip: [[.22, .12], [.02, .2], [-.2, .18]], ft: [[.34, .3], [.06, .38], [-.3, .34]] },
-    lady:   { w: 15, nom: 16, L: [14, 17], v: [14, 24], go: [1.5, 4], stop: [.8, 2.4], A: .05, lw: .03, wob: .35, sway: .02,
-              hip: [[.18, .14], [0, .2], [-.18, .18]], ft: [[.26, .3], [.04, .33], [-.28, .29]] },
-    fly:    { w: 15, nom: 16, L: [14, 18], v: [90, 150], go: [.25, .6], stop: [.7, 2.4], A: .06, lw: .014, wob: .9, sway: .0,
-              hip: [[.12, .06], [.04, .08], [-.04, .07]], ft: [[.3, .2], [.08, .27], [-.22, .24]] }
-  };
-  const KEYS = Object.keys(K), WSUM = KEYS.reduce((s, k) => s + K[k].w, 0);
-  const pick = () => { let x = Math.random() * WSUM; for (const k of KEYS) { x -= K[k].w; if (x <= 0) return k; } return "ant"; };
-
-  /* ---------- palet (ikut tema) ---------- */
-  const PAL = {
-    dark: {
-      ant: [["#d08a4a", "#8e4d22", "#43200d"], "#9a6a40"],
-      beetle: [["#a06a3c", "#58311a", "#24130a"], "#8a5d38"],
-      bronze: [["#8fa760", "#3f5a2a", "#16230f"], "#7f8f58"],
-      lady: [["#ff6a4a", "#d8281c", "#7a0f0a"], "#8a6a55"],
-      fly: [["#9aa0a6", "#585c61", "#25272a"], "#8c8f93"]
-    },
-    light: {
-      ant: [["#9a5a2a", "#4e250e", "#1c0b04"], "#2a1409"],
-      beetle: [["#6e4a2e", "#33200f", "#120a05"], "#24140a"],
-      bronze: [["#6f8a42", "#2e4520", "#101a0b"], "#1d2a12"],
-      lady: [["#ff6a4a", "#cf2418", "#6e0c08"], "#1a0e0a"],
-      fly: [["#7d838a", "#3e4247", "#17181a"], "#1c1d1f"]
-    }
-  };
-  let theme = root.dataset.theme === "light" ? "light" : "dark";
-
-  /* ---------- sprite badan (digambar sekali, di-cache) ---------- */
-  const ell = (c, x, y, rx, ry, f, rot) => { c.beginPath(); c.ellipse(x, y, rx, ry, rot || 0, 0, TAU); c.fillStyle = f; c.fill(); };
-  const gl = (c, x, y, rx, ry, p) => {               // elips mengilap
-    const g = c.createRadialGradient(x - rx * .32, y - ry * .4, 0, x - rx * .1, y - ry * .1, Math.max(rx, ry) * 1.25);
-    g.addColorStop(0, p[0]); g.addColorStop(.5, p[1]); g.addColorStop(1, p[2]);
-    ell(c, x, y, rx, ry, g); c.lineWidth = .012; c.strokeStyle = "rgba(0,0,0,.35)"; c.stroke();
-  };
-  const spec = (c, x, y, rx, ry, a, rot) => ell(c, x, y, rx, ry, "rgba(255,244,225," + a + ")", rot);
-
-  const BODY = {
-    ant(c, p) {
-      gl(c, -.30, 0, .20, .145, p); spec(c, -.35, -.06, .08, .03, .3, -.2);
-      ell(c, -.12, 0, .035, .03, p[1]);
-      gl(c, -.01, 0, .135, .075, p); spec(c, -.04, -.03, .06, .02, .28);
-      gl(c, .17, 0, .095, .085, p);
-      ell(c, .20, -.062, .022, .018, "rgba(10,6,3,.85)"); ell(c, .20, .062, .022, .018, "rgba(10,6,3,.85)");
-      c.fillStyle = p[2]; c.beginPath();                // rahang
-      c.moveTo(.25, -.03); c.lineTo(.31, -.055); c.lineTo(.27, -.01); c.moveTo(.25, .03); c.lineTo(.31, .055); c.lineTo(.27, .01); c.fill();
-    },
-    beetle(c, p) {
-      gl(c, -.1, 0, .37, .27, p);
-      c.beginPath(); c.moveTo(-.46, 0); c.lineTo(.2, 0); c.lineWidth = .014; c.strokeStyle = "rgba(0,0,0,.5)"; c.stroke();
-      spec(c, -.14, -.12, .17, .05, .38, -.12); spec(c, -.22, .12, .1, .03, .16, .1);
-      gl(c, .24, 0, .12, .2, p); spec(c, .21, -.08, .06, .025, .3);
-      gl(c, .4, 0, .075, .1, p);
-    },
-    lady(c, p) {
-      gl(c, -.06, 0, .34, .33, p);
-      c.beginPath(); c.moveTo(-.4, 0); c.lineTo(.26, 0); c.lineWidth = .014; c.strokeStyle = "rgba(20,0,0,.7)"; c.stroke();
-      c.fillStyle = "#140a08";
-      [[.08, .17, .055], [-.12, .2, .06], [-.26, .08, .05]].forEach(s => { [-1, 1].forEach(m => { c.beginPath(); c.arc(s[0], s[1] * m, s[2], 0, TAU); c.fill(); }); });
-      spec(c, -.12, -.17, .14, .05, .4, -.5);
-      ell(c, .27, 0, .105, .2, "#e9e4d6"); ell(c, .265, 0, .09, .175, "#161210");
-      ell(c, .33, 0, .06, .12, "#161210"); ell(c, .36, -.07, .03, .04, "#eee"); ell(c, .36, .07, .03, .04, "#eee");
-    },
-    fly(c, p) {
-      gl(c, -.22, 0, .2, .13, p); ell(c, -.2, 0, .012, .12, "rgba(255,255,255,.1)"); ell(c, -.31, 0, .012, .1, "rgba(255,255,255,.1)");
-      gl(c, .05, 0, .15, .12, p); spec(c, .03, -.05, .08, .025, .25);
-      gl(c, .24, 0, .085, .09, p);
-      [-1, 1].forEach(s => { const g = c.createRadialGradient(.265, s * .06, 0, .265, s * .06, .07); g.addColorStop(0, "#d23a3a"); g.addColorStop(1, "#6a0f10"); ell(c, .265, s * .066, .055, .062, g); });
-      [-1, 1].forEach(s => {                             // sayap tembus pandang
-        c.save(); c.translate(.06, s * .07); c.rotate(Math.PI - s * .24);
-        ell(c, .2, 0, .23, .08, "rgba(225,235,245,.26)"); c.lineWidth = .008; c.strokeStyle = "rgba(255,255,255,.5)"; c.stroke();
-        c.beginPath(); c.moveTo(0, 0); c.lineTo(.4, 0); c.lineWidth = .006; c.strokeStyle = "rgba(255,255,255,.35)"; c.stroke(); c.restore();
-      });
-    }
-  };
-
-  let dpr = 1, vw = 0, vh = 0, cv, ctx;
-  const cache = {};
-  const sprite = (kind, variant) => {
-    const key = kind + variant + theme + dpr;
-    if (cache[key]) return cache[key];
-    const T = K[kind], pal = PAL[theme][variant][0], s = T.nom * dpr;
-    const mk = () => { const c = doc.createElement("canvas"); c.width = Math.ceil(1.5 * s); c.height = Math.ceil(s); return c; };
-    const a = mk(), c = a.getContext("2d");
-    c.setTransform(s, 0, 0, s, a.width / 2, a.height / 2); BODY[kind](c, pal);
-    const b = mk(), d = b.getContext("2d");               // bayangan: siluet hitam
-    d.drawImage(a, 0, 0); d.globalCompositeOperation = "source-in"; d.fillStyle = "#000"; d.fillRect(0, 0, b.width, b.height);
-    return (cache[key] = { body: a, shadow: b });
-  };
-
-  /* ---------- kaki & antena ---------- */
-  const legs = (c, o, T) => {
-    c.beginPath();
-    for (let i = 0; i < 3; i++) for (let s = -1; s <= 1; s += 2) {
-      const h = T.hip[i], f = T.ft[i], ph = o.ph + (((i + (s > 0 ? 1 : 0)) & 1) ? Math.PI : 0);
-      let fx = f[0], fy = f[1];
-      if (o.v > 1.5) { const sn = Math.sin(ph), cs = Math.cos(ph); fx += T.A * sn; if (cs > 0) fy *= 1 - .14 * cs; }
-      else if (o.kind === "fly" && i === 0) { fx = .3 + .05 * Math.sin(o.t * 22 + (s > 0 ? 1.6 : 0)); fy = .09 + .03 * Math.sin(o.t * 22 + s); }
-      const kx = (h[0] + fx) / 2 + (i === 0 ? .05 : i === 2 ? -.05 : 0), ky = h[1] + (fy - h[1]) * .72;
-      c.moveTo(h[0], s * h[1]); c.lineTo(kx, s * ky); c.lineTo(fx, s * fy);
-    }
-  };
-  const antennae = (c, o, T) => {
-    const w = Math.sin(o.t * (o.v > 1.5 ? 5 : 11) + o.seed) * (o.v > 1.5 ? .22 : .4);
-    c.beginPath();
-    if (o.kind === "ant") for (let s = -1; s <= 1; s += 2) {
-      const a = s * (.55 + w * s * .6) + w * .5;
-      const ex = .25 + Math.cos(a) * .15, ey = s * .03 + Math.sin(a) * .15;
-      c.moveTo(.25, s * .03); c.lineTo(ex, ey); c.lineTo(ex + Math.cos(a + s * .9 - w) * .13, ey + Math.sin(a + s * .9 - w) * .13);
-    } else if (o.kind === "beetle") for (let s = -1; s <= 1; s += 2) { c.moveTo(.44, s * .05); c.lineTo(.54, s * (.12 + w * .1)); }
-  };
-
-  /* ---------- daftar serangga ---------- */
-  const list = [];
-  const maxN = () => lowEnd ? 3 : (vw >= 900 ? CFG.maxWide : CFG.max);
-
-  function spawn() {
-    const kind = pick(), T = K[kind], variant = kind === "beetle" && Math.random() < .3 ? "bronze" : kind;
-    const side = (Math.random() * 4) | 0, m = 36;
-    let x, y, tx, ty; const u = rnd(.12, .88), u2 = rnd(.1, .9);
-    if (side === 0) { x = u * vw; y = -m; tx = u2 * vw; ty = vh + 90; }
-    else if (side === 1) { x = vw + m; y = u * vh; tx = -90; ty = u2 * vh; }
-    else if (side === 2) { x = u * vw; y = vh + m; tx = u2 * vw; ty = -90; }
-    else { x = -m; y = u * vh; tx = vw + 90; ty = u2 * vh; }
-    const th = Math.atan2(ty - y, tx - x), n = kind === "ant" ? (Math.random() < .4 ? (Math.random() < .35 ? 3 : 2) : 1) : 1;
-    const base = r2(T.v), L = r2(T.L);
-    for (let i = 0; i < n; i++) {                        // semut sering berbaris
-      list.push({
-        kind, T, variant, L: L * rnd(.92, 1.08), x: x - Math.cos(th) * i * L * 2.5, y: y - Math.sin(th) * i * L * 2.5,
-        th: th + rnd(-.12, .12), w: 0, v: 0, base: base * rnd(.9, 1.1), boost: 1, ph: rnd(0, TAU), t: rnd(0, 50), seed: rnd(0, 9),
-        mode: "go", mt: r2(T.go), tx, ty, age: 0, seen: false, px: x, py: y
-      });
-    }
+  const cv = document.createElement("canvas");
+  cv.setAttribute("aria-hidden", "true");
+  cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30";
+  document.body.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  let W = 0, H = 0, DPR = 1;
+  const small = () => W < 700;
+  function resize() {
+    DPR = Math.min(devicePixelRatio || 1, small() ? 1.75 : 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
   }
+  resize();
+  addEventListener("resize", resize, { passive: true });
 
-  function scareAt(px, py, rad) {
-    for (const o of list) {
-      const dx = o.x - px, dy = o.y - py;
-      if (dx * dx + dy * dy < rad * rad) {
-        const a = Math.atan2(dy, dx) + rnd(-.5, .5);
-        o.tx = o.x + Math.cos(a) * 700; o.ty = o.y + Math.sin(a) * 700;
-        o.boost = o.kind === "fly" ? 1.6 : 2.7; o.mode = "go"; o.mt = 1.4;
-        o.th += clamp(angd(a, o.th), -1.2, 1.2) * .6;
+  /* ================= SPRITE SAYAP CAPUNG ================= */
+  function dragonWing(hind) {
+    const c = document.createElement("canvas"); c.width = 160; c.height = 40;
+    const g = c.getContext("2d"); g.scale(2, 2); g.translate(1, 10);
+    const w = hind ? 10 : 7.5;
+    const p = new Path2D(`M0 ${w * .35} C8 ${-w * .1} 44 ${-w * .55} 76 ${w * .15} C77 ${w * .5} 70 ${w * .95} 46 ${w * 1.05} C24 ${w * 1.1} 8 ${w * .95} 0 ${w * .6} Z`);
+    const gr = g.createLinearGradient(0, 0, 78, 0);
+    gr.addColorStop(0, "rgba(160,200,215,.55)"); gr.addColorStop(.6, "rgba(215,235,245,.32)"); gr.addColorStop(1, "rgba(235,245,250,.22)");
+    g.fillStyle = gr; g.fill(p);
+    g.save(); g.clip(p); g.strokeStyle = "rgba(45,70,85,.55)"; g.lineWidth = .5;
+    for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(0, w * (.3 + i * .12)); g.lineTo(78, w * (-.1 + i * .22)); g.stroke(); }
+    for (let x = 8; x < 76; x += 4.2) { g.beginPath(); g.moveTo(x, -w); g.lineTo(x + 1.5, w * 1.3); g.stroke(); }
+    g.restore();
+    g.strokeStyle = "rgba(35,55,70,.7)"; g.lineWidth = .9; g.stroke(p);
+    g.fillStyle = "#2b2a22"; g.beginPath(); g.rect(64, 0, 5.5, 2.2); g.fill();            // pterostigma
+    return c;
+  }
+  const DWF = dragonWing(false), DWH = dragonWing(true);
+
+  /* ================= PETUNJUK & POINTER ================= */
+  const mouse = { x: -999, y: -999 };
+  addEventListener("pointermove", e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  addEventListener("pointerdown", e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  addEventListener("pointerleave", () => { mouse.x = mouse.y = -999; });
+  const PERCH_SEL = ".btn,.tag,.chip,h2,.proj,.stats b,.badge,.why .ic,.lap,.pho";
+
+  function pickPerch() {
+    const els = document.querySelectorAll(PERCH_SEL), ok = [];
+    for (const el of els) {
+      const r = el.getBoundingClientRect();
+      if (r.width > 40 && r.top > 90 && r.top < H - 60 && r.left > -5 && r.right < W + 5) ok.push([el, r]);
+    }
+    if (!ok.length) return null;
+    const [el, r] = ok[(Math.random() * ok.length) | 0];
+    return { el, u: R(.15, .85) };
+  }
+  const perchPoint = t => { const r = t.el.getBoundingClientRect(); return { x: r.left + r.width * t.u, y: r.top + 1, ok: r.top > 80 && r.top < H - 30 && r.width > 0 }; };
+
+  /* ================= KELAS SERANGGA ================= */
+  class Bug {
+    constructor(kind, i) {
+      this.k = kind;
+      this.x = R(40, W - 40); this.y = R(100, H - 80);
+      this.vx = R(-20, 20); this.vy = R(-20, 20);
+      this.h = R(0, TAU); this.bank = 0;
+      this.t = R(0, 50); this.ph = R(0, TAU);
+      this.n1 = R(0, TAU); this.n2 = R(0, TAU); this.n3 = R(0, TAU);
+      this.z = (kind === "df" ? R(1, 1.15) : R(.95, 1.1)) * (small() ? .82 : 1);
+      this.mode = "fly"; this.mt = R(.5, 1.5); this.amp = .4; this.openW = .6;
+            this.perch = null; this.pt = 0; this.perchCd = R(3, 9);
+      this.wp = { x: this.x, y: this.y }; this.newWp();
+    }
+    newWp(far) {
+      const r = far ? R(200, 420) : R(90, 260), a = R(0, TAU), top = 90, m = 36;
+      this.wp = { x: clamp(this.x + Math.cos(a) * r, m, W - m), y: clamp(this.y + Math.sin(a) * r, top, H - 50) };
+    }
+    noise(t) { return Math.sin(t * 1.7 + this.n1) * .55 + Math.sin(t * 2.9 + this.n2) * .3 + Math.sin(t * 5.3 + this.n3) * .15; }
+
+    update(dt) {
+      this.t += dt;
+      const sp = Math.hypot(this.vx, this.vy);
+      /* ----- hinggap ----- */
+      if (this.mode === "perched") {
+        const p = perchPoint(this.perch);
+        const m = Math.hypot(mouse.x - this.x, mouse.y - this.y);
+        this.pt -= dt; this.x = p.x; this.y = p.y;
+        if (!p.ok || this.pt <= 0 || m < 110) { this.mode = "fly"; this.perchCd = R(8, 18); this.vy = -R(30, 55); this.vx = R(-40, 40); this.mt = R(.8, 1.6); this.amp = 0; this.perch = null; this.newWp(true); }
+        else { this.wing(dt, 0); return; }
+      }
+      /* ----- ganti mode kepak/meluncur (kupu-kupu) atau melesat/melayang (capung, lebah) ----- */
+      this.mt -= dt;
+      if (this.mt <= 0) {
+        if (this.k === "df") { this.mode = this.mode === "dart" ? "hover" : "dart"; this.mt = this.mode === "dart" ? R(.7, 1.4) : R(.6, 1.8); if (this.mode === "dart") this.newWp(true); }
+        else { this.mode = this.mode === "buzz" ? "hover" : "buzz"; this.mt = this.mode === "buzz" ? R(1, 2.4) : R(.4, 1); if (this.mode === "buzz") this.newWp(); }
+      }
+      if (this.mode === "fly") this.mode = this.k === "df" ? "dart" : "buzz";
+
+      /* ----- arah tujuan ----- */
+      let tx = this.wp.x, ty = this.wp.y;
+      if (this.perch) { const p = perchPoint(this.perch); if (!p.ok) { this.perch = null; this.newWp(); } else { tx = p.x; ty = p.y; } }
+      let dx = tx - this.x, dy = ty - this.y, d = Math.hypot(dx, dy) || 1;
+      if (d < 36 && !this.perch) this.newWp();
+      if (this.perch && d < 9) { this.mode = "perched"; this.pt = R(3, 7); this.vx = this.vy = 0; return; }
+
+      let speed, acc;
+      if (this.k === "df") { speed = this.mode === "dart" ? 215 : 0; acc = this.mode === "dart" ? 5 : 4; }
+      else { speed = this.mode === "buzz" ? 125 : 6; acc = 6; }
+      speed *= this.z * .95;
+      if (this.perch) speed = Math.min(speed, 20 + d * 1.4);
+      let ux = dx / d, uy = dy / d;
+      // lengkung alami: tambah komponen tegak lurus yang berayun halus
+      const wob = this.noise(this.t) * (this.k === "bee" ? 1.5 : .22);
+      { const bx = ux, by = uy; ux = bx - by * wob; uy = by + bx * wob; }
+      const ul = Math.hypot(ux, uy) || 1; ux /= ul; uy /= ul;
+      // hindari kursor / jari
+      const mx = this.x - mouse.x, my = this.y - mouse.y, md = Math.hypot(mx, my);
+      if (md < 140) { ux = mx / md; uy = my / md; speed = Math.max(speed, 170) * 1.15; acc = 8; if (this.k === "df" && this.mode === "hover") this.mode = "dart"; }
+      let dvx = ux * speed - this.vx, dvy = uy * speed - this.vy;
+      this.vx += dvx * acc * dt; this.vy += dvy * acc * dt;
+      if (this.mode === "hover" || (this.k === "bee" && this.mode === "hover")) {        // gemetar kecil saat melayang
+        this.vx += Math.sin(this.t * 31 + this.n1) * 14 * dt * 8; this.vy += Math.cos(this.t * 27 + this.n2) * 14 * dt * 8;
+      }
+      this.x += this.vx * dt; this.y += this.vy * dt;
+      if (this.x < -50 || this.x > W + 50 || this.y < 20 || this.y > H + 50) this.newWp(true);
+
+      /* ----- arah hadap & kemiringan ----- */
+      const s2 = Math.hypot(this.vx, this.vy);
+      if (s2 > 12) {
+        const tgt = Math.atan2(this.vy, this.vx), diff = angDiff(this.h, tgt);
+        const rate = this.k === "df" ? 9 : 10;
+        this.h += diff * Math.min(1, dt * rate);
+        this.bank += (clamp(diff, -1, 1) * 0.7 - this.bank) * Math.min(1, dt * 5);
+      } else this.bank *= .9;
+      this.wing(dt, s2);
+    }
+
+    wing(dt, s) {
+      if (this.k === "df") {
+        this.ph += dt * (this.mode === "perched" ? 0 : 2 * Math.PI * (this.mode === "hover" ? 26 : 22));
+      } else this.ph += dt * 2 * Math.PI * 70;
+    }
+
+    draw(g) {
+      const z = this.z, perched = this.mode === "perched";
+      // bayangan lembut di permukaan (tidak saat hinggap)
+      if (!perched) {
+        g.save(); g.translate(this.x + 14 * z, this.y + 20 * z); g.rotate(this.h);
+        const sr = (this.k === "df" ? 22 : 9) * z;
+        const gr = g.createRadialGradient(0, 0, 0, 0, 0, sr);
+        gr.addColorStop(0, "rgba(0,0,0,.16)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = gr; g.scale(1, .55); g.beginPath(); g.arc(0, 0, sr, 0, TAU); g.fill(); g.restore();
+      }
+      g.save(); g.translate(this.x, this.y); g.rotate(this.h + Math.PI / 2 + (perched ? 0 : this.bank * .35));
+      if (this.k === "df") this.drawDf(g, z, perched); else this.drawBee(g, z);
+      g.restore();
+    }
+
+    drawDf(g, z, perched) {
+      const ty = -13 * z;
+      const wings = (a, fl) => {
+        for (const s of [-1, 1]) {
+          g.save(); g.translate(0, ty); g.scale(s, 1);
+          g.globalAlpha = a;
+          g.save(); g.rotate(-.16 - fl * .9); g.scale(z * .42, z * .42 * (1 - Math.abs(fl) * .35)); g.drawImage(DWF, -1, -10); g.restore();
+          g.save(); g.translate(0, 3.5 * z); g.rotate(.2 + fl * .9); g.scale(z * .42, z * .42 * (1 - Math.abs(fl) * .35)); g.drawImage(DWH, -1, -10); g.restore();
+          g.restore();
+        }
+        g.globalAlpha = 1;
+      };
+      // abdomen bersegmen
+      g.lineCap = "round";
+      const N = 11, seg = 3.4 * z;
+      for (let i = 0; i < N; i++) {
+        const y0 = -6 * z + i * seg, y1 = y0 + seg, r = (2.1 - i * .07) * z;
+        g.strokeStyle = i % 3 === 2 ? "#0b3b5a" : i % 2 ? "#2aa4d6" : "#1c86c0"; g.lineWidth = r * 2;
+        g.beginPath(); g.moveTo(0, y0); g.lineTo(0, y1); g.stroke();
+      }
+      g.strokeStyle = "rgba(255,255,255,.35)"; g.lineWidth = .7 * z; g.beginPath(); g.moveTo(-.5 * z, -5 * z); g.lineTo(-.4 * z, (N * 3.4 - 6) * z); g.stroke();
+      // capit ekor
+      g.strokeStyle = "#0b3b5a"; g.lineWidth = .8 * z; g.beginPath(); g.moveTo(-.5 * z, (N * 3.4 - 6) * z); g.lineTo(-1.4 * z, (N * 3.4 - 3) * z); g.moveTo(.5 * z, (N * 3.4 - 6) * z); g.lineTo(1.4 * z, (N * 3.4 - 3) * z); g.stroke();
+      if (perched) wings(.9, 0);
+      else { const f = Math.sin(this.ph) * .34; wings(.62, f); wings(.4, f * .35); }
+      // dada & kepala
+      const tg = g.createRadialGradient(-1 * z, -14 * z, .5, 0, -13 * z, 5.6 * z); tg.addColorStop(0, "#9be870"); tg.addColorStop(1, "#2f7a2a");
+      g.fillStyle = tg; g.beginPath(); g.ellipse(0, -12.5 * z, 3.5 * z, 5.6 * z, 0, 0, TAU); g.fill();
+      g.fillStyle = "#1d4f1c"; g.beginPath(); g.ellipse(0, -20 * z, 2.4 * z, 1.8 * z, 0, 0, TAU); g.fill();
+      for (const s of [-1, 1]) {
+        const eg = g.createRadialGradient(s * 3 * z, -21.4 * z, .2, s * 2.8 * z, -20.8 * z, 3.2 * z); eg.addColorStop(0, "#d4f4ff"); eg.addColorStop(.4, "#3aa6d8"); eg.addColorStop(1, "#0d4b73");
+        g.fillStyle = eg; g.beginPath(); g.ellipse(s * 2.7 * z, -21 * z, 2.5 * z, 2.9 * z, 0, 0, TAU); g.fill();
       }
     }
-  }
 
-  function step(o, dt) {
-    const T = o.T; o.age += dt; o.t += dt;
-    o.boost = Math.max(1, o.boost - dt * .9);
-    if (o.boost <= 1.01) { o.mt -= dt; if (o.mt <= 0) { if (o.mode === "go") { o.mode = "stop"; o.mt = r2(T.stop); } else { o.mode = "go"; o.mt = r2(T.go); if (o.kind === "fly") o.th += rnd(-1.2, 1.2); } } }
-    const tgt = o.mode === "go" ? o.base * o.boost : 0;
-    o.v += (tgt - o.v) * Math.min(1, dt * (tgt > o.v ? 6 : 10));
-    if (o.v > 2) {
-      o.w += (-o.w * 1.8 + rnd(-1, 1) * T.wob * 9) * dt;
-      const da = angd(Math.atan2(o.ty - o.y, o.tx - o.x), o.th);
-      o.th += (clamp(da, -1, 1) * .9 + o.w) * dt * clamp(o.v / (o.base * .6), .2, 1.4);
-      o.x += Math.cos(o.th) * o.v * dt; o.y += Math.sin(o.th) * o.v * dt;
-      o.ph += o.v * dt / (4 * T.A * o.L) * TAU;
-    }
-    const inside = o.x > 0 && o.x < vw && o.y > 0 && o.y < vh;
-    if (inside) o.seen = true;
-    const out = o.x < -70 || o.x > vw + 70 || o.y < -70 || o.y > vh + 70;
-    return !((o.seen && out) || o.age > 45);
-  }
-
-  /* ---------- gambar ---------- */
-  function draw(o) {
-    const T = o.T, pal = PAL[theme][o.variant], sp = sprite(o.kind, o.variant), sway = Math.sin(o.ph * 2) * T.sway * (o.v > 1.5 ? 1 : 0);
-    for (let pass = 0; pass < 2; pass++) {
-      const off = pass ? 0 : o.L * .1;
-      ctx.setTransform(dpr, 0, 0, dpr, (o.x + off) * dpr, (o.y + off * 1.3) * dpr);
-      ctx.rotate(o.th + sway); ctx.scale(o.L, o.L);
-      ctx.lineJoin = ctx.lineCap = "round";
-      if (!pass) {
-        ctx.strokeStyle = "rgba(0,0,0,.22)"; ctx.lineWidth = T.lw * 1.4; legs(ctx, o, T); ctx.stroke();
-        ctx.globalAlpha = .2; ctx.drawImage(sp.shadow, -.75, -.5, 1.5, 1);
-        ctx.globalAlpha = .1; ctx.drawImage(sp.shadow, -.83, -.55, 1.66, 1.1); ctx.globalAlpha = 1;
-      } else {
-        ctx.strokeStyle = pal[1]; ctx.lineWidth = T.lw; legs(ctx, o, T); ctx.stroke();
-        if (o.kind === "ant" || o.kind === "beetle") { ctx.lineWidth = T.lw * .8; antennae(ctx, o, T); ctx.stroke(); }
-        ctx.drawImage(sp.body, -.75, -.5, 1.5, 1);
+    drawBee(g, z) {
+      const f = Math.sin(this.ph);
+      // sayap (dua pasang, kabur oleh dua salinan)
+      for (const a of [1, .45]) {
+        g.fillStyle = `rgba(225,240,255,${.34 * a})`; g.strokeStyle = `rgba(110,140,165,${.5 * a})`; g.lineWidth = .5 * z;
+        for (const s of [-1, 1]) {
+          g.save(); g.translate(s * 2.6 * z, -3.4 * z); g.scale(s, 1); g.rotate(-.5 + f * .7 * a);
+          g.beginPath(); g.ellipse(7.5 * z, 0, 8.5 * z, 3.1 * z, 0, 0, TAU); g.fill(); g.stroke();
+          g.beginPath(); g.ellipse(5 * z, 4.2 * z, 5.5 * z, 2.2 * z, .4, 0, TAU); g.fill();
+          g.restore();
+        }
       }
+      // kaki
+      g.strokeStyle = "#2a1c0b"; g.lineWidth = .7 * z; g.lineCap = "round";
+      for (const s of [-1, 1]) { g.beginPath(); g.moveTo(s * 3 * z, -2 * z); g.lineTo(s * 6.5 * z, 1 * z); g.moveTo(s * 3.4 * z, 1 * z); g.lineTo(s * 7 * z, 5 * z); g.stroke(); }
+      // perut bergaris
+      const ag = g.createRadialGradient(-1.5 * z, 4 * z, .5, 0, 6.5 * z, 7.6 * z); ag.addColorStop(0, "#ffd24a"); ag.addColorStop(1, "#c78205");
+      g.fillStyle = ag; g.beginPath(); g.ellipse(0, 6.5 * z, 4.5 * z, 7 * z, 0, 0, TAU); g.fill();
+      g.save(); g.beginPath(); g.ellipse(0, 6.5 * z, 4.5 * z, 7 * z, 0, 0, TAU); g.clip();
+      g.fillStyle = "#1b1209"; for (const y of [3.2, 7.4, 11.3]) g.fillRect(-6 * z, y * z, 12 * z, 2.1 * z);
+      g.fillStyle = "rgba(255,255,255,.22)"; g.beginPath(); g.ellipse(-1.8 * z, 4 * z, 1.1 * z, 4 * z, 0, 0, TAU); g.fill();
+      g.restore();
+      // dada berbulu
+      const tg = g.createRadialGradient(-1 * z, -3.5 * z, .3, 0, -2.4 * z, 4.8 * z); tg.addColorStop(0, "#f0c25c"); tg.addColorStop(.6, "#8a5f1c"); tg.addColorStop(1, "#3a260c");
+      g.fillStyle = tg; g.beginPath(); g.ellipse(0, -2.4 * z, 4.2 * z, 3.9 * z, 0, 0, TAU); g.fill();
+      // kepala + mata + antena
+      g.fillStyle = "#221609"; g.beginPath(); g.ellipse(0, -8 * z, 2.9 * z, 2.6 * z, 0, 0, TAU); g.fill();
+      g.fillStyle = "#0b0805"; g.beginPath(); g.ellipse(-1.9 * z, -8.2 * z, 1.1 * z, 1.6 * z, 0, 0, TAU); g.ellipse(1.9 * z, -8.2 * z, 1.1 * z, 1.6 * z, 0, 0, TAU); g.fill();
+      g.fillStyle = "rgba(255,255,255,.6)"; g.beginPath(); g.arc(-2.2 * z, -8.8 * z, .4 * z, 0, TAU); g.arc(1.6 * z, -8.8 * z, .4 * z, 0, TAU); g.fill();
+      g.strokeStyle = "#221609"; g.lineWidth = .6 * z; g.beginPath(); g.moveTo(-.8 * z, -10 * z); g.lineTo(-2.6 * z, -13.5 * z); g.moveTo(.8 * z, -10 * z); g.lineTo(2.6 * z, -13.5 * z); g.stroke();
     }
-    o.px = o.x; o.py = o.y;
   }
-  const wipe = o => { const r = o.L * 1.25 + 4; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(o.px - r, o.py - r, r * 2, r * 2); };
 
-  /* ---------- loop ---------- */
-  let raf = 0, last = 0, spawnT = 0;
+  /* ================= POPULASI ================= */
+  const kinds = small() ? ["df", "bee", "bee"] : ["df", "df", "bee", "bee", "bee"];
+  const bugs = kinds.map((k, i) => new Bug(k, i));
+
+  let last = 0, raf = 0;
   function frame(ts) {
-    raf = 0;
-    if (doc.hidden || !list.length) return;
-    if (lowEnd && ts - last < 32) { raf = requestAnimationFrame(frame); return; }
-    const dt = Math.min(.05, (ts - (last || ts - 16)) / 1000); last = ts;
-    for (const o of list) wipe(o);
-    for (let i = list.length - 1; i >= 0; i--) if (!step(list[i], dt)) list.splice(i, 1);
-    for (const o of list) draw(o);
-    if (list.length) raf = requestAnimationFrame(frame); else last = 0;
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    for (const b of bugs) { b.update(dt); b.draw(ctx); }
   }
-  const go = () => { if (!raf && !doc.hidden && list.length) raf = requestAnimationFrame(frame); };
-
-  const tick = () => {
-    if (!doc.hidden && list.filter(o => o.kind === "ant").length + list.length / 2 < maxN() && list.length < maxN()) { spawn(); go(); }
-    spawnT = setTimeout(tick, r2(CFG.gap) * 1000);
-  };
-
-  /* ---------- init ---------- */
-  function size() {
-    vw = root.clientWidth; vh = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
-    cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr); cv.style.width = vw + "px"; cv.style.height = vh + "px";
-    list.forEach(o => { o.px = o.x; o.py = o.y; });
-  }
-  function init() {
-    const host = doc.querySelector(".hero"); if (!host) return;
-    cv = doc.createElement("canvas"); cv.className = "bugs"; cv.setAttribute("aria-hidden", "true");
-    host.appendChild(cv); ctx = cv.getContext("2d"); if (!ctx) return;
-    size();
-    let rt = 0; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { size(); go(); }, 180); }, { passive: true });
-    doc.addEventListener("visibilitychange", () => { if (doc.hidden) { cancelAnimationFrame(raf); raf = 0; } else { last = 0; go(); } });
-    new MutationObserver(() => { const t = root.dataset.theme === "light" ? "light" : "dark"; if (t !== theme) { theme = t; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); } }).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
-    if (CFG.scare) {
-      addEventListener("pointerdown", e => { if (list.length) scareAt(e.clientX, e.clientY, 110); }, { passive: true });
-      if (matchMedia("(hover:hover) and (pointer:fine)").matches) addEventListener("pointermove", e => { if (list.length) scareAt(e.clientX, e.clientY, 70); }, { passive: true });
+  const start = () => { if (!raf && !document.hidden && !mq.matches) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+  const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+  document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
+  mq.addEventListener && mq.addEventListener("change", e => e.matches ? (stop(), cv.remove()) : start());
+  // coba hinggap secara berkala (kupu-kupu & capung)
+  setInterval(() => {
+    if (document.hidden) return;
+    for (const b of bugs) {
+      if (b.k !== "df" || b.mode === "perched" || b.perch) continue;
+      b.perchCd -= 1; if (b.perchCd <= 0) { const t = pickPerch(); if (t) { b.perch = t; if (b.k === "df") b.mode = "dart"; } b.perchCd = R(10, 20); }
     }
-    spawnT = setTimeout(() => { spawn(); go(); tick(); }, CFG.first);
-  }
-
-  const start = () => setTimeout(init, 0);
-  const begin = () => { if (!root.classList.contains("ld-on")) return start(), true; return false; };
-  const boot = () => {
-    if (begin()) return;
-    const mo = new MutationObserver(() => { if (!root.classList.contains("ld-on")) { mo.disconnect(); start(); } });
-    mo.observe(root, { attributes: true, attributeFilter: ["class"] });
-  };
-  doc.readyState === "loading" ? doc.addEventListener("DOMContentLoaded", boot) : boot();
+  }, 1000);
+  start();
 })();

@@ -1,32 +1,4 @@
-/* ============ LOADING SCREEN 2026 — progres nyata + pintu kayu terbuka ============ */
-(function () {
-  const root = document.documentElement, ld = document.getElementById("ld");
-  const go = () => { root.classList.remove("ld-on"); root.classList.add("ready"); document.dispatchEvent(new Event("ads-ready")); };
-  if (!ld) { go(); return; }
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const MIN = reduce ? 500 : 2100, MAX = 4500, t0 = performance.now();
-  const ring = document.getElementById("ldring"), num = document.getElementById("ldn"), tx = document.getElementById("ldtx");
-  const msgs = [[0, "Menyiapkan tampilan…"], [34, "Memuat portofolio…"], [68, "Merapikan detail…"], [90, "Hampir siap…"], [100, "Selamat datang"]];
-  let loaded = document.readyState === "complete", fonts = !(document.fonts && document.fonts.ready), p = 0, last = -1, prev = t0, closing = false;
-  addEventListener("load", () => { loaded = true; });
-  if (!fonts) document.fonts.ready.then(() => { fonts = true; }, () => { fonts = true; });
-  const out = () => {
-    if (closing) return; closing = true; go(); ld.classList.add("out");
-    setTimeout(() => ld.remove(), reduce ? 50 : 1500);
-  };
-  (function tick(now) {
-    const el = now - t0, dt = Math.min(64, now - prev); prev = now;
-    const ready = (loaded && fonts && el >= MIN) || el >= MAX;
-    if (!ready) { const k = Math.min(1, el / MIN); p = Math.max(p, 92 * (1 - Math.pow(1 - k, 3))); }
-    else p = Math.min(100, p + Math.max(.05 * dt, .6));
-    const v = Math.floor(p);
-    if (v !== last) {
-      last = v; num.textContent = v; ring.style.strokeDashoffset = 100 - p; ring.style.opacity = v > 0 ? 1 : 0;
-      for (const m of msgs) if (v >= m[0]) tx.textContent = m[1];
-    }
-    if (p < 100) requestAnimationFrame(tick); else setTimeout(out, reduce ? 0 : 320);
-  })(t0);
-})();
+document.documentElement.classList.add("ready");
 /* ============ KONFIGURASI — EDIT DI SINI ============ */
 const CONFIG = {
   brand: "ADS (Abi Digital Solutions)",
@@ -74,7 +46,7 @@ const CONFIG = {
     {"slug": "ebook", "title": "BukuNusa Digital", "filter": "E-Commerce", "cat": "E-Commerce & Konten", "img": "assets/projects/ebook.webp", "desc": "Platform buku digital: katalog & kategori, baca bab pertama gratis, buka bab premium, serta halaman penulis.", "feat": ["Katalog Buku", "Bab Premium", "Profil Penulis"], "url": "https://benyoriki.github.io/ebook/#/", "accent": "#8B5CF6"},
     {"slug": "restoran", "title": "Ayam Kampung & Sambal Merintih", "filter": "Booking", "cat": "Restoran & Pesan Online", "img": "assets/projects/restoran.webp", "desc": "Rumah makan dengan QR di setiap meja: pilih menu, bayar QRIS, makanan diantar ke meja. Lengkap dasbor kasir & owner.", "feat": ["QR Meja", "Bayar QRIS", "Dasbor Kasir"], "url": "https://benyoriki.github.io/Restoran/", "accent": "#DC2626"}
   ],
-  hero: ["mbe", "nabilove", "belajarbermain"], // slug project untuk visual hero
+  hero: ["nabilove", "belajarbermain", "tokobangunan"], // slug project: [laptop, HP, layar belakang]
   industries: ["Barbershop", "Bengkel Motor", "Restoran", "Gym & Fitness", "Toko Online", "Toko Bangunan", "Laundry", "Travel & Transport", "Pemancingan", "Koperasi", "Kontrakan & Kos", "Minimarket", "Booking Talent", "Buku Digital", "Game Edukasi", "SPKLU"], // baris marquee "cocok untuk"
   skills: ["HTML5", "CSS3", "JavaScript", "Responsive Web Design", "Firebase", "GitHub", "UI/UX Design", "Web Application", "Database", "API Integration"],
   points: ["Desain modern & responsive di HP maupun desktop", "Dibuat sesuai alur kerja bisnis Anda", "Konsultasi awal gratis via WhatsApp"],
@@ -130,20 +102,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const cats = [...new Set(P.map(p => p.filter))];
   $("#stats").innerHTML = [[P.length + "+", "Proyek nyata"], [cats.length, "Kategori proyek"], ["100%", "Responsive HP & PC"]].map(s => `<li><b>${s[0]}</b><span>${s[1]}</span></li>`).join("");
   const hs = CONFIG.hero.map(k => P.find(p => p.slug === k)).filter(Boolean);
-  $("#vis").innerHTML = hs.map((p, i) => `<div class="win w${i + 1}"><div class="bar"><s></s><s></s><s></s></div><img src="${esc(p.img)}" alt="" width="800" height="500" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>`).join("") +
-    `<span class="fl f1"><i class="dot"></i>${P.length}+ Website Live</span><span class="fl f2">&lt;/&gt; Custom Code</span><span class="fl f3">✓ 100% Responsive</span>`;
+  const im = (p, i) => `<img src="${esc(p.img)}" alt="" width="800" height="500" ${i ? 'loading="lazy" ' : 'fetchpriority="high" '}decoding="async">`;
+  $("#vis").innerHTML = hs.length < 3 ? "" :
+    `<div class="bak">${im(hs[2], 1)}</div>` +
+    `<div class="lap"><div class="lid"><div class="scr"><div class="bar"><s></s><s></s><s></s><span>${esc(hostOf("https://benyoriki.github.io/Restoran/"))}</span></div><img class="hpc" src="assets/hero-pc.webp" alt="" width="1100" height="598" fetchpriority="high" decoding="async"></div></div><div class="base"></div></div>` +
+    `<div class="pho"><img src="assets/hero-hp.webp" alt="" width="420" height="859" decoding="async"></div>` +
+    `<span class="tag t1"><i></i>${P.length}+ website live</span><span class="tag t2">100% responsive HP &amp; PC</span>`;
 
   /* Keunggulan */
-  $("#why").innerHTML = CONFIG.why.map((w, i) => `<li class="spot rv" style="--d:${i * .06}s"><span class="ic">${ico(w[0])}</span><h3>${esc(w[1])}</h3><p>${esc(w[2])}</p></li>`).join("");
+  $("#why").innerHTML = CONFIG.why.map((w, i) => `<li ><span class="ic">${ico(w[0])}</span><h3>${esc(w[1])}</h3><p>${esc(w[2])}</p></li>`).join("");
 
   /* Layanan (bento) */
-  $("#svc").innerHTML = CONFIG.services.map((s, i) => `<article class="spot rv" style="--d:${i * .06}s"><div class="ic">${ico(s.icon)}</div><div class="tx"><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div><ul>${s.perks.map(p => `<li>${ico("check")}${esc(p)}</li>`).join("")}</ul><a class="lnk" target="_blank" rel="noopener" href="${waLink(`Halo ADS (Abi Digital Solutions), saya tertarik dengan jasa ${s.title}. Boleh konsultasi?`)}">Konsultasi via WhatsApp ${ico("arrow")}</a></article>`).join("");
+  $("#svc").innerHTML = CONFIG.services.map((s, i) => `<article ><div class="ic">${ico(s.icon)}</div><div class="tx"><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div><ul>${s.perks.map(p => `<li>${ico("check")}${esc(p)}</li>`).join("")}</ul><a class="lnk" target="_blank" rel="noopener" href="${waLink(`Halo ADS (Abi Digital Solutions), saya tertarik dengan jasa ${s.title}. Boleh konsultasi?`)}">Konsultasi via WhatsApp ${ico("arrow")}</a></article>`).join("");
 
   /* Portfolio */
   const filters = ["Semua", ...cats];
   const count = f => f === "Semua" ? P.length : P.filter(p => p.filter === f).length;
   $("#flt").innerHTML = filters.map((f, i) => `<button class="chip${i ? "" : " on"}" aria-pressed="${!i}" data-f="${esc(f)}">${esc(f)}<b>${count(f)}</b></button>`).join("");
-  $("#grid").innerHTML = P.map((p, i) => `<article class="card spot proj" data-f="${esc(p.filter)}" style="--accent:${p.accent}"><div class="shotw"><div class="sbar"><s></s><s></s><s></s><span>${esc(hostOf(p.url))}</span></div><button class="shot" data-i="${i}" aria-label="Lihat detail ${esc(p.title)}"><img src="${esc(p.img)}" alt="Screenshot website ${esc(p.title)}" width="800" height="500" loading="lazy" decoding="async"></button></div><div class="pb"><div class="pcat"><i></i>${esc(p.cat)}</div><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p><div class="chips">${p.feat.map(t => `<span>${esc(t)}</span>`).join("")}</div><div class="pact"><button class="btn sm wa" data-i="${i}">${ico("play")}Preview</button><a class="btn sm ghost" href="${esc(p.url)}" target="_blank" rel="noopener">${ico("ext")}Buka Website</a></div><a class="pwa" target="_blank" rel="noopener" href="${waLink(`Halo ADS (Abi Digital Solutions), saya tertarik bikin website mirip ${p.title}. Boleh konsultasi?`)}"><span>Mau seperti ini?</span><b>Chat Sekarang →</b></a></div></article>`).join("");
+  $("#grid").innerHTML = P.map((p, i) => `<article class="proj" data-f="${esc(p.filter)}" data-i="${i}" style="--accent:${p.accent}"><div class="shotw"><div class="sbar"><s></s><s></s><s></s><span>${esc(hostOf(p.url))}</span></div><button class="shot" data-i="${i}" aria-label="Lihat detail ${esc(p.title)}"><img src="${esc(p.img)}" alt="Screenshot website ${esc(p.title)}" width="800" height="500" loading="lazy" decoding="async"></button></div><div class="pb"><h3>${esc(p.title)}</h3><div class="pcat"><i></i>${esc(p.cat)}</div><p>${esc(p.desc)}</p><div class="pact"><button class="lnk" type="button" data-i="${i}">Lihat detail ${ico("arrow")}</button><a class="lnk" href="${esc(p.url)}" target="_blank" rel="noopener">Buka website ${ico("ext")}</a></div></div></article>`).join("");
   const cards = $$("#grid .proj"), LIMIT = 6;
   let flt = "Semua", expanded = false, first = true;
   const matches = () => P.map((p, i) => i).filter(i => flt === "Semua" || P[i].filter === flt);
@@ -178,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
   }
   const step = d => { const m = matches(), k = m.indexOf(cur); openP(m[(k + d + m.length) % m.length]); };
-  $("#grid").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) openP(+b.dataset.i); });
+  $("#grid").addEventListener("click", e => { if (e.target.closest("a")) return; const b = e.target.closest("[data-i]"); if (b) openP(+b.dataset.i); });
   $("#dprev").onclick = () => step(-1); $("#dnext").onclick = () => step(1);
   $("#dx").onclick = () => dlg.close();
   dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
@@ -193,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (CONFIG.photo) $("#photo .bcard").outerHTML = `<img class="pimg" src="${esc(CONFIG.photo)}" alt="Foto profil ${esc(CONFIG.name)}" width="400" height="400" loading="lazy">`;
 
   /* Proses */
-  $("#steps").innerHTML = CONFIG.steps.map((s, i) => `<li class="spot rv" style="--d:${(i % 3) * .08}s"><span class="num">0${i + 1}</span><span class="ic">${ico(STEPI[i])}</span><h3>${esc(s[0])}</h3><p>${esc(s[1])}</p></li>`).join("");
+  $("#steps").innerHTML = CONFIG.steps.map((s, i) => `<li ><span class="num">0${i + 1}</span><span class="ic">${ico(STEPI[i])}</span><h3>${esc(s[0])}</h3><p>${esc(s[1])}</p></li>`).join("");
 
   /* Kontak (hanya yang terisi) */
   const c = CONFIG.contacts;
@@ -201,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cIcon = { WhatsApp: "whatsapp", Email: "mail", Instagram: "instagram", Facebook: "facebook", Github: "github", Website: "globe" };
   const all = [["WhatsApp", fmtWa(CONFIG.whatsapp), waLink()], ...["email", "instagram", "facebook", "github", "website"].map(k => [k[0].toUpperCase() + k.slice(1), c[k], c[k] && hrefs[k](c[k])])];
   const items2 = all.filter(i => i[2]);
-  $("#contacts").innerHTML = items2.map(([n, v, h], i) => `<a class="ct spot rv" style="--d:${i * .06}s" href="${esc(h)}" target="_blank" rel="noopener"><span class="ic">${ico(cIcon[n])}</span><span><small>${n}</small><b>${esc(v)}</b></span>${n === "WhatsApp" ? `<span class="btn sm wa go">Chat Sekarang ${ico("arrow")}</span>` : ""}</a>`).join("");
+  $("#contacts").innerHTML = items2.map(([n, v, h], i) => `<a class="ct" href="${esc(h)}" target="_blank" rel="noopener"><span class="ic">${ico(cIcon[n])}</span><span><small>${n}</small><b>${esc(v)}</b></span>${n === "WhatsApp" ? `<span class="btn sm wa go">Chat Sekarang ${ico("arrow")}</span>` : ""}</a>`).join("");
   $("#fnav").innerHTML = $$("#menu a:not(.menu-cta)").map(a => `<a href="${a.getAttribute("href")}">${a.textContent}</a>`).join("");
   $("#fsoc").innerHTML = items2.map(i => `<a href="${esc(i[2])}" target="_blank" rel="noopener">${i[0]}</a>`).join("");
   $("#yr").textContent = new Date().getFullYear();
@@ -220,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Tema */
   const root = document.documentElement;
   $("#theme").onclick = () => { const t = root.dataset.theme === "dark" ? "light" : "dark"; root.dataset.theme = t; try { localStorage.setItem("theme", t); } catch (e) {}
-    const m = $("meta[name=theme-color]"); if (m) m.content = t === "light" ? "#f6eedf" : "#16100b"; };
+    const m = $("meta[name=theme-color]"); if (m) m.content = t === "light" ? "#eeeae2" : "#15100b"; };
 
   /* Menu mobile */
   const menu = $("#menu"), burger = $("#burger");
@@ -232,20 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* FAQ: satu jawaban terbuka */
   $$("#faqlist details").forEach(d => d.addEventListener("toggle", () => { if (d.open) $$("#faqlist details").forEach(o => o !== d && (o.open = false)); }));
-
-  /* Kata berganti di hero */
-  const rot = $$("#rot span"); let ri = 0;
-  if (rot.length > 1 && !reduce) setInterval(() => { rot[ri].classList.remove("on"); ri = (ri + 1) % rot.length; rot[ri].classList.add("on"); }, 2600);
-
-  /* Hitung naik pada statistik (setelah loading selesai) */
-  let counted = false;
-  const runCount = () => { if (counted) return; counted = true; $$("#stats b").forEach(b => { const m = b.textContent.match(/^(\d+)(.*)$/); if (!m || reduce) return; const n = +m[1], t0 = performance.now();
-    (function f(t) { const k = Math.min(1, (t - t0) / 1200); b.textContent = Math.round(n * (1 - Math.pow(1 - k, 3))) + m[2]; if (k < 1) requestAnimationFrame(f); })(t0); }); };
-  if (root.classList.contains("ready")) setTimeout(runCount, 500); else { document.addEventListener("ads-ready", () => setTimeout(runCount, 500), { once: true }); setTimeout(runCount, 6500); }
-
-  /* Cahaya mengikuti kursor (hanya mouse) */
-  if (matchMedia("(hover:hover) and (pointer:fine)").matches && !reduce) { const cur = $("#cur"); let cx = 0, cy = 0, tk2 = false;
-    addEventListener("pointermove", e => { cx = e.clientX; cy = e.clientY; if (tk2) return; tk2 = true; requestAnimationFrame(() => { tk2 = false; cur.style.transform = `translate(${cx - 260}px,${cy - 260}px)`; cur.classList.add("on"); }); }, { passive: true }); }
 
   /* PWA install */
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
@@ -284,8 +246,6 @@ document.addEventListener("DOMContentLoaded", () => {
     links.forEach(a => { const s = $(a.getAttribute("href")); s && so.observe(s); });
   }
 
-  /* Spotlight kartu */
-  document.addEventListener("pointermove", e => { const el = e.target.closest && e.target.closest(".spot"); if (!el) return; const r = el.getBoundingClientRect(); el.style.setProperty("--mx", e.clientX - r.left + "px"); el.style.setProperty("--my", e.clientY - r.top + "px"); }, { passive: true });
 });
 /* header: mengecil & lebih pekat saat di-scroll */
 (() => { const n = document.getElementById("nav"); if (!n) return; const f = () => n.classList.toggle("scrolled", scrollY > 24); addEventListener("scroll", f, { passive: true }); f(); })();
