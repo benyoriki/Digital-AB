@@ -39,6 +39,47 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Plus+Jakarta+Sans:wght@400..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style id="ldcss">
+/* ===== LOADING SCREEN: bengkel digital (4 detik) ===== */
+html.ld{overflow:hidden}
+html.ld .hero-txt>*,html.ld .vis{animation-play-state:paused}
+#ld{position:fixed;inset:0;z-index:1000;overflow:hidden;color:var(--tx);font-family:var(--font);-webkit-user-select:none;user-select:none}
+.ldp{position:absolute;top:0;bottom:0;width:50.15%;overflow:hidden;background:var(--bg);transition:transform .95s cubic-bezier(.77,0,.18,1) .12s;will-change:transform}
+.ldp:before{content:"";position:absolute;top:0;bottom:0;width:199.7%;background:var(--wood) center/cover;opacity:var(--wood-o)}
+.ldp.l{left:0;box-shadow:6px 0 28px -6px var(--shadow)}.ldp.l:before{left:0}
+.ldp.r{right:0;box-shadow:-6px 0 28px -6px var(--shadow)}.ldp.r:before{right:0}
+.ldv{position:absolute;inset:0;background:radial-gradient(ellipse 75% 65% at 50% 46%,transparent 35%,var(--shadow) 135%);pointer-events:none;transition:opacity .4s}
+.lds{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:linear-gradient(transparent,var(--brass) 18%,var(--brass) 82%,transparent);opacity:.55;transition:opacity .3s}
+.ldc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3.2vh,26px);padding:24px;transition:opacity .35s,transform .45s}
+.lddial{position:relative;width:min(66vw,260px);aspect-ratio:1;animation:ldin .8s cubic-bezier(.2,.8,.2,1) both}
+.lddial svg{position:absolute;inset:0;width:100%;height:100%}
+.lddial .tk{stroke:var(--line2);stroke-width:1.6;stroke-linecap:round}
+.lddial .tk.m{stroke-width:2.6}
+.lddial .tk.on{stroke:var(--brass)}
+.ldglow{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--brass) 34%,transparent),transparent 68%);animation:ldbr 2.4s ease-in-out infinite}
+.ldlogo{position:absolute;left:50%;top:50%;width:70%;transform:translate(-50%,-50%);aspect-ratio:1;animation:ldlg 1s cubic-bezier(.2,.8,.2,1) .25s both}
+.ldlogo img{width:100%;height:100%;filter:drop-shadow(0 10px 14px var(--shadow))}
+.ldlogo:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,236,190,.7) 50%,transparent 60%) -140% 0/260% 100% no-repeat;-webkit-mask:url(assets/logo-384.webp) center/contain no-repeat;mask:url(assets/logo-384.webp) center/contain no-repeat;animation:ldsh 2s ease-in-out .9s infinite}
+.ldpct{font:800 clamp(2.4rem,11vw,3.4rem)/1 var(--display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ldpct small{font-size:.45em;margin-left:2px;color:var(--brass);letter-spacing:0}
+.ldtx{min-height:1.5em;font-size:clamp(.92rem,3.6vw,1.02rem);font-weight:600;color:var(--mut);text-align:center;transition:opacity .2s}
+.ldbar{position:relative;width:min(72vw,300px);height:14px;border-top:1px solid var(--line2);background:repeating-linear-gradient(90deg,var(--line2) 0 1px,transparent 1px 8px) left top/100% 6px no-repeat,repeating-linear-gradient(90deg,var(--brass) 0 2px,transparent 2px 40px) left top/100% 12px no-repeat}
+.ldbar i{position:absolute;left:0;top:-2px;height:3px;width:0;background:var(--brass);border-radius:3px;box-shadow:0 0 10px var(--brass)}
+.ldbrand{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));text-align:center;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);opacity:.8}
+.ldk{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ldk b{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:var(--brass);box-shadow:0 0 6px var(--brass);opacity:0;animation:ldup linear infinite}
+#ld.out .ldc{opacity:0;transform:scale(1.06)}
+#ld.out .lds,#ld.out .ldv,#ld.out .ldk{opacity:0}
+#ld.out .ldp.l{transform:translateX(-102%)}#ld.out .ldp.r{transform:translateX(102%)}
+@keyframes ldin{from{opacity:0;transform:scale(.88)}}
+@keyframes ldlg{from{opacity:0;transform:translate(-50%,-46%) scale(.82)}}
+@keyframes ldbr{50%{opacity:.55;transform:scale(1.07)}}
+@keyframes ldsh{0%{background-position:-140% 0}60%,100%{background-position:240% 0}}
+@keyframes ldup{0%{transform:translateY(0) translateX(0);opacity:0}15%{opacity:.85}100%{transform:translateY(-105vh) translateX(var(--dx,20px));opacity:0}}
+@media(prefers-reduced-motion:reduce){.ldglow,.ldlogo:after,.ldk b{animation:none!important}.ldlogo,.lddial{animation:none!important}}
+</style>
+<noscript><style>#ld{display:none!important}html.ld{overflow:auto}</style></noscript>
+
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"ADS (Abi Digital Solutions)","alternateName":["ADS","Abi Digital Solutions"],"url":"https://benyoriki.github.io/Digital-AB/","image":"https://benyoriki.github.io/Digital-AB/preview-wa.jpg?v=6","telephone":"+6285694993097","description":"Jasa pembuatan website, sistem informasi, dashboard dan solusi digital untuk bisnis.","areaServed":"ID","sameAs":[]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Berapa biaya pembuatan website?", "acceptedAnswer": {"@type": "Answer", "text": "Setiap bisnis punya kebutuhan berbeda, jadi biaya disusun sesuai fitur, kompleksitas, dan jenis project Anda, bukan paket seragam yang membuat Anda membayar fitur yang tidak dipakai. Ceritakan ide Anda lewat WhatsApp dan Anda akan menerima penawaran yang jelas sebelum pengerjaan dimulai. Konsultasi awal 100% gratis."}}, {"@type": "Question", "name": "Berapa lama website selesai dikerjakan?", "acceptedAnswer": {"@type": "Answer", "text": "Tergantung ruang lingkupnya. Website profil atau katalog umumnya lebih cepat, sedangkan sistem dengan dashboard, booking, atau database memerlukan tahapan yang lebih panjang. Estimasi waktu disepakati sejak awal, dan Anda bisa memantau perkembangannya di setiap tahap."}}, {"@type": "Question", "name": "Apakah website nyaman dibuka di HP?", "acceptedAnswer": {"@type": "Answer", "text": "Sangat nyaman. Setiap website dirancang mobile-first: tampil rapi di HP, tablet, dan desktop, ringan saat dibuka, dan tombolnya mudah disentuh. Ini penting karena sebagian besar calon pelanggan kini mencari bisnis lewat HP."}}, {"@type": "Question", "name": "Bisakah website dipasang seperti aplikasi di HP?", "acceptedAnswer": {"@type": "Answer", "text": "Bisa. Dengan teknologi PWA, website dapat dipasang ke layar utama HP lengkap dengan ikon sendiri, terbuka layaknya aplikasi, dan tetap bisa diakses saat koneksi lemah. Website ADS (Abi Digital Solutions) ini sendiri sudah mendukungnya: ketuk tombol Install untuk mencobanya."}}, {"@type": "Question", "name": "Jenis website apa saja yang bisa dibuat?", "acceptedAnswer": {"@type": "Answer", "text": "Website bisnis dan company profile, katalog produk, toko online, sistem booking dan antrean, sistem informasi, dashboard monitoring, hingga aplikasi web khusus. Lihat 19+ project nyata di bagian Portfolio, semuanya bisa dicoba langsung."}}, {"@type": "Question", "name": "Apakah bisa menambah fitur setelah website selesai?", "acceptedAnswer": {"@type": "Answer", "text": "Bisa. Tersedia layanan maintenance dan pengembangan untuk perbaikan, update konten, penambahan fitur, dan optimasi. Website Anda dibangun agar mudah berkembang mengikuti pertumbuhan bisnis."}}, {"@type": "Question", "name": "Bagaimana dengan domain dan hosting?", "acceptedAnswer": {"@type": "Answer", "text": "Website dipublikasikan hingga benar-benar siap digunakan. Opsi domain dan hosting dibahas bersama sesuai kebutuhan dan anggaran Anda, sehingga Anda tidak perlu bingung soal teknis."}}, {"@type": "Question", "name": "Bagaimana cara memulai?", "acceptedAnswer": {"@type": "Answer", "text": "Cukup tiga langkah: klik tombol WhatsApp, ceritakan kebutuhan dan target bisnis Anda, lalu kita susun rencana dan penawaran yang sesuai. Alur lengkapnya bisa dilihat di bagian Proses Kerja."}}]}</script>
 <script>
@@ -50,6 +91,39 @@ var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='light
 <script src="bugs.js" defer></script>
 </head>
 <body>
+<div id="ld" role="status" aria-live="polite" aria-label="Memuat website">
+  <div class="ldp l"></div><div class="ldp r"></div><div class="ldv"></div><div class="lds"></div>
+  <div class="ldk" id="ldk"></div>
+  <div class="ldc">
+    <div class="lddial">
+      <div class="ldglow"></div>
+      <svg viewBox="0 0 200 200" aria-hidden="true"><g id="ldt"></g><g id="ldn"><path d="M100 4 L95.5 16 L104.5 16Z" fill="currentColor" style="color:var(--brass)"/></g></svg>
+      <div class="ldlogo"><img src="assets/logo-384.webp" alt="ADS" width="384" height="384" decoding="async"></div>
+    </div>
+    <div class="ldpct"><span id="ldp">0</span><small>%</small></div>
+    <div class="ldtx" id="ldx">Menyiapkan bengkel digital…</div>
+    <div class="ldbar" aria-hidden="true"><i id="ldb"></i></div>
+  </div>
+  <div class="ldbrand">Abi Digital Solutions</div>
+</div>
+<script>
+(function(){var ld=document.getElementById('ld');if(!ld)return;var H=document.documentElement;H.classList.add('ld');
+var NS='http://www.w3.org/2000/svg',g=document.getElementById('ldt'),T=[],N=60,i;
+for(i=0;i<N;i++){var a=i/N*Math.PI*2,m=i%5===0,r1=m?83:87,r2=96,l=document.createElementNS(NS,'line');
+l.setAttribute('x1',100+Math.sin(a)*r1);l.setAttribute('y1',100-Math.cos(a)*r1);l.setAttribute('x2',100+Math.sin(a)*r2);l.setAttribute('y2',100-Math.cos(a)*r2);
+l.setAttribute('class','tk'+(m?' m':''));g.appendChild(l);T.push(l)}
+var k=document.getElementById('ldk');for(i=0;i<14;i++){var b=document.createElement('b');b.style.cssText='left:'+(Math.random()*100)+'%;animation-duration:'+(3+Math.random()*3)+'s;animation-delay:'+(Math.random()*3)+'s;--dx:'+((Math.random()-.5)*80)+'px;'+(i%3?'':'width:4px;height:4px');k.appendChild(b)}
+var P=document.getElementById('ldp'),X=document.getElementById('ldx'),B=document.getElementById('ldb'),Nd=document.getElementById('ldn');
+var MSG=[[0,'Menyiapkan bengkel digital…'],[28,'Mengukur kebutuhan bisnis Anda…'],[58,'Merakit tampilan & fitur…'],[84,'Memoles detail terakhir…'],[100,'Siap! Selamat datang']];
+var t0=performance.now(),DUR=4000,FILL=3600,on=0,msg=-1,done=0;
+function out(){if(done)return;done=1;ld.classList.add('out');H.classList.remove('ld');setTimeout(function(){ld.remove();var s=document.getElementById('ldcss');if(s)s.remove()},1300)}
+function step(now){if(done)return;var t=Math.min(1,(now-t0)/FILL),p=.45*t+.55*(.5-.5*Math.cos(Math.PI*t)),pc=Math.round(p*100),n=Math.round(p*N);
+P.textContent=pc;B.style.width=(p*100)+'%';Nd.setAttribute('transform','rotate('+(p*360).toFixed(1)+' 100 100)');
+if(n!==on){for(var j=0;j<N;j++)T[j].setAttribute('class',T[j].getAttribute('class').replace(' on','')+(j<n?' on':''));on=n}
+var mi=0;for(var q=0;q<MSG.length;q++)if(pc>=MSG[q][0])mi=q;if(mi!==msg){msg=mi;X.textContent=MSG[mi][1]}
+if(now-t0>=DUR)out();else requestAnimationFrame(step)}
+requestAnimationFrame(step);setTimeout(out,DUR+1500)})();
+</script>
 <div class="prog" id="prog"></div>
 <a class="skip" href="#main">Lewati ke konten</a>
 

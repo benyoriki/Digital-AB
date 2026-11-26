@@ -5,7 +5,7 @@ Website HTML + CSS + JavaScript murni (tanpa build, tanpa library). Konsep: waln
 Upload SEMUA isi folder ini ke root repository GitHub (timpa file lama, termasuk `assets/`), lalu pastikan `bugs.js` ikut terupload. Setelah publish, buka sekali lalu muat ulang (service worker sudah naik ke `ads-v12`).
 
 ## Yang berubah di v12
-- Tanpa layar loading (sebelumnya menahan halaman min. 2,1 detik), tanpa cahaya kursor, tanpa blur/backdrop-filter. v16: serangga = capung & lebah saja lewat `bugs.js` (satu canvas, ±6 serangga, berhenti saat tab tersembunyi / reduce-motion).
+- Tanpa layar loading (sebelumnya menahan halaman min. 2,1 detik), tanpa cahaya kursor, tanpa blur/backdrop-filter. v17: loading screen 4 detik "bengkel digital" (inline di index.html); serangga = capung & lebah lewat `bugs.js` (satu canvas, ±6 serangga, berhenti saat tab tersembunyi / reduce-motion).
 - Foto kayu hanya di hero, CTA, footer; sisanya warna solid, jadi teks lebih terbaca.
 - Font: Bricolage Grotesque (judul) + Plus Jakarta Sans (isi).
 - Hero: laptop + HP + layar belakang dari screenshot proyek asli, statistik berbentuk penggaris.

@@ -1,5 +1,5 @@
 /* ADS (Abi Digital Solutions) — service worker (ringan): halaman utama bisa dibuka cepat & offline */
-const VER = "ads-v16";
+const VER = "ads-v17";
 const CORE = ["./", "index.html", "style.css", "script.js", "bugs.js", "assets/hero-hp.webp", "assets/hero-pc.webp", "manifest.webmanifest", "favicon.png", "apple-touch-icon.png",
   "assets/logo-wide.webp", "assets/tex/wood-dark.webp", "assets/tex/wood-light.webp", "assets/tex/grain.png", "icons/icon-192.png", "icons/icon-512.png"];
 
