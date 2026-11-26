@@ -1,4 +1,4 @@
-# ABY Digital
+# ADS (Abi Digital Solutions)
 Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). Desain 2026 bertema KAYU: mode terang (oak) & gelap (walnut) otomatis, tekstur papan kayu, bento layanan, portfolio dengan screenshot nyata + preview langsung.
 
 ## Cara pakai
@@ -18,13 +18,13 @@ Website portfolio & katalog jasa (HTML + CSS + JavaScript murni, tanpa build). D
 - Warna ada di `:root` (gelap) dan `[data-theme=light]` (terang) paling atas `style.css`.
 - Tekstur: `assets/tex/wood-dark.webp` & `wood-light.webp` (tile 1536×1024, ±115 KB per tema, prosedural via `wood-generator.py`) + `grain.png` (1 KB, bintik halus untuk kartu).
 - Pencahayaan: `body:after` di `style.css` (cahaya hangat + vignette, satu layer statis). Atur kekuatan tekstur lewat `--veil` / `--veil2`.
-- Logo: `assets/logo-*.webp`, `favicon.png`, `apple-touch-icon.png`, `icons/`.
+- Logo: `assets/logo-wide.webp` (logo kayu & emas, transparan), `assets/logo-*.webp`, `favicon.png`, `apple-touch-icon.png`, `icons/`.
 
 ## Foto profil (opsional)
 Bagian Tentang memakai kartu brand. Untuk foto sendiri: taruh di `assets/profile.jpg` lalu isi `photo: "assets/profile.jpg"` di CONFIG.
 
 ## PWA (bisa di-install)
-`manifest.webmanifest`, `sw.js`, folder `icons/`. Setelah publish di HTTPS (GitHub Pages), tombol Install muncul di HP/PC. iPhone: Bagikan → Tambah ke Layar Utama. Jika file diubah, naikkan `VER` di `sw.js` (mis. aby-v1) agar cache diperbarui.
+`manifest.webmanifest`, `sw.js`, folder `icons/`. Setelah publish di HTTPS (GitHub Pages), tombol Install muncul di HP/PC. iPhone: Bagikan → Tambah ke Layar Utama. Jika file diubah, naikkan `VER` di `sw.js` (mis. ads-v1) agar cache diperbarui.
 
 ## Setelah publish
 `og:image` / `og:url` di `index.html` sudah mengarah ke https://benyoriki.github.io/Digital/ — ganti jika domain berubah.

@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "ABY Digital",
-  "short_name": "ABY",
+  "name": "ADS (Abi Digital Solutions)",
+  "short_name": "ADS",
   "description": "Website, sistem informasi & solusi digital modern untuk bisnis. Konsultasi gratis via WhatsApp.",
   "lang": "id",
   "dir": "ltr",
@@ -85,14 +85,14 @@
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "ABY Digital di desktop"
+      "label": "ADS (Abi Digital Solutions) di desktop"
     },
     {
       "src": "icons/shot-narrow.jpg",
       "sizes": "540x960",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "ABY Digital di HP"
+      "label": "ADS (Abi Digital Solutions) di HP"
     }
   ]
 }

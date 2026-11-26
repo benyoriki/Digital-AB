@@ -1,4 +1,4 @@
-/* ABY Digital — serangga lalu-lalang di latar kayu.
+/* ADS (Abi Digital Solutions) — serangga lalu-lalang di latar kayu.
    Satu <canvas>, tanpa library/gambar. Berhenti otomatis saat tab tersembunyi / tidak ada serangga.
    Nonaktif otomatis: "reduce motion" & "hemat data". Matikan manual: CFG.enabled = false. */
 (() => {
